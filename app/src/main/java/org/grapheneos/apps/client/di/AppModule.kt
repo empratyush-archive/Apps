@@ -21,7 +21,11 @@ object AppModule {
     fun providerOkHttpClient(): OkHttpClient =
         OkHttpClient.Builder()
             .retryOnConnectionFailure(true)
-            .callTimeout(Duration.ofMinutes(1))
+            .readTimeout(Duration.ofSeconds(30))
+            .writeTimeout(Duration.ofSeconds(30))
+            .callTimeout(Duration.ofSeconds(30))
+            .connectTimeout(Duration.ofSeconds(30))
+            .pingInterval(Duration.ofSeconds(10))
             .build()
 
     @Singleton
