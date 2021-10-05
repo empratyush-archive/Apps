@@ -18,12 +18,12 @@ import okio.buffer
 import okio.sink
 import org.grapheneos.apps.client.item.PackageVariant
 import java.io.File
+import java.io.FileOutputStream
 import java.io.IOException
 import java.net.UnknownHostException
 import java.security.GeneralSecurityException
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
-import java.time.Duration
 import javax.net.ssl.SSLHandshakeException
 
 class ApkDownloadHelper constructor(
@@ -52,6 +52,10 @@ class ApkDownloadHelper constructor(
         variant.packagesInfo.forEach { (fileName, sha256Hash) ->
             withContext(Dispatchers.IO) {
                 val downloadedFile = File(downloadDir.absolutePath, fileName)
+
+                val shouldResume = downloadedFile.exists()
+                val downloadedSize = if(shouldResume) downloadedFile.readBytes().size else 0
+
                 val request = Request.Builder()
                     .url("https://apps.grapheneos.org/packages/${variant.pkgName}/${variant.versionCode}/${fileName}")
                     .build()
@@ -61,13 +65,7 @@ class ApkDownloadHelper constructor(
                 if (downloadedFile.exists() && verifyHash(downloadedFile, sha256Hash)) {
                     result.add(downloadedFile)
                 } else {
-                    if (downloadedFile.exists()) {
-                        downloadedFile.delete()
-                    }
                     val response = okHttpClient.newBuilder()
-                        .readTimeout(Duration.ofMinutes(5))
-                        .writeTimeout(Duration.ofMinutes(5))
-                        .callTimeout(Duration.ofSeconds(120))
                         .addInterceptor { chain ->
                             val originalResponse = chain.proceed(chain.request())
                             try {
@@ -82,7 +80,10 @@ class ApkDownloadHelper constructor(
                             originalResponse
                         }.build().newCall(request).execute()
                     response.body?.let { body ->
-                        val sink: BufferedSink = downloadedFile.sink().buffer()
+                        if(shouldResume){
+                            body.source().skip(downloadedSize.toLong())
+                        }
+                        val sink: BufferedSink = FileOutputStream(downloadedFile, shouldResume).sink().buffer()
                         sink.writeAll(body.source())
                         sink.close()
 
@@ -107,10 +108,8 @@ class ApkDownloadHelper constructor(
             )
             if (sha256Hash == downloadedFileHash) return true
         } catch (e: NoSuchAlgorithmException) {
-            downloadedFile.delete()
             throw GeneralSecurityException("SHA-256 is not supported by device")
         }
-        downloadedFile.delete()
         return false
     }
 
