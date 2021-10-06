@@ -7,9 +7,9 @@ import android.content.Intent
 import android.content.pm.PackageInstaller
 import android.content.pm.PackageInstaller.SessionParams
 import android.net.Uri
-import okio.IOException
 import java.io.File
 import java.io.FileInputStream
+import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
 
@@ -79,7 +79,7 @@ class PackageManagerHelper {
             val pendingIntent =
                 PendingIntent.getBroadcast(
                     context.applicationContext, 0, callbackIntent,
-                    PendingIntent.FLAG_UPDATE_CURRENT
+                    PendingIntent.FLAG_MUTABLE
                 )
             session.commit(pendingIntent.intentSender)
             session.close()
