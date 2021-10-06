@@ -1,5 +1,6 @@
 package org.grapheneos.apps.client.di
 
+import androidx.annotation.Nullable
 import org.grapheneos.apps.client.item.network.Response
 import java.io.File
 import java.io.FileOutputStream
@@ -16,9 +17,11 @@ class HttpModule @Inject constructor
     @Named("file") private val file: File,
     @Named("uri") private val uri: String,
     @Named("timeout") private val timeout: Int? = 60_000,
-    @Named("eTag") eTag: String?
+    @Named("eTag") eTag: String?,
+    @Named("progressListener") @Nullable private val progressListener:
+        (read: Long, total: Long, doneInPercent: Double, taskCompleted: Boolean) -> Unit?
 ) {
-    private val connection : HttpURLConnection = URL(uri).openConnection() as HttpURLConnection
+    private val connection: HttpURLConnection = URL(uri).openConnection() as HttpURLConnection
 
     init {
         val range: String = String.format(
@@ -43,16 +46,16 @@ class HttpModule @Inject constructor
     }
 
 
-    fun connect() : Response {
+    fun connect(): Response {
         connection.connect()
-        return Response(connection.getHeaderField(""), connection.responseCode)
+        return Response(connection.getHeaderField("ETag"), connection.responseCode)
     }
 
     fun saveToFile() {
         connection.connect()
 
         val data = connection.inputStream
-        val size = connection.getHeaderField("Content-Length").toLong()
+        val size = connection.getHeaderField("Content-Length")?.toLong() ?: 0
 
         val bufferSize = maxOf(DEFAULT_BUFFER_SIZE, data.available())
         val out = FileOutputStream(file, file.exists())
@@ -65,8 +68,20 @@ class HttpModule @Inject constructor
             bytesCopied += bytes
             bytes = data.read(buffer)
 
-            println("Downloaded ${file.length()} out of $size")
+            progressListener.invoke(
+                file.length(), size,
+                (file.length() * 100.0) / size,
+                false
+            )
+
+            println("Downloaded ${file.length()} out of $size == % ${(file.length() * 100.0) / size}")
         }
+        progressListener.invoke(
+            file.length(), size,
+            (file.length() * 100.0) / size,
+            false
+        )
+
     }
 
 }
