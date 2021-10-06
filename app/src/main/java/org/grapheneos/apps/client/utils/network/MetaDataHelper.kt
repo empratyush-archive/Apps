@@ -2,9 +2,8 @@ package org.grapheneos.apps.client.utils.network
 
 import android.content.Context
 import android.content.SharedPreferences
-import okhttp3.OkHttpClient
-import okhttp3.Request
 import org.bouncycastle.util.encoders.DecoderException
+import org.grapheneos.apps.client.di.DaggerHttpHelperComponent
 import org.grapheneos.apps.client.item.MetaData
 import org.grapheneos.apps.client.item.Package
 import org.grapheneos.apps.client.item.PackageVariant
@@ -12,18 +11,12 @@ import org.json.JSONException
 import org.json.JSONObject
 import java.io.FileNotFoundException
 import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.io.BufferedInputStream
 import java.io.File
-import java.io.OutputStream
 import java.net.UnknownHostException
 import java.security.GeneralSecurityException
 import javax.net.ssl.SSLHandshakeException
 
-class MetaDataHelper constructor(
-    private val okHttpClient: OkHttpClient,
-    private val context: Context
-) {
+class MetaDataHelper constructor(context: Context) {
 
     private val version: Int = 0
     private val baseDir = "${context.dataDir.absolutePath}/internet/files/cache/${version}/"
@@ -64,6 +57,9 @@ class MetaDataHelper constructor(
             response that indicate it's cache data
              */
             throw e
+        } catch (e: SecurityException) {
+            //user can deny INTERNET permission instead of crashing app let user know it's failed
+            throw GeneralSecurityException(e.localizedMessage)
         }
 
         if (!metadata.exists()) {
@@ -147,54 +143,41 @@ class MetaDataHelper constructor(
 
     @Throws(UnknownHostException::class, GeneralSecurityException::class, SecurityException::class)
     private fun fetchContent(pathAfterBaseUrl: String, file: File) {
-        val request = Request.Builder()
-            .url("${BASE_URL}/${pathAfterBaseUrl}")
 
-        /*Attach previous eTag if there is any*/
-        val eTAG = getETag(pathAfterBaseUrl)
-        if (file.exists() && eTAG != null) {
-            request.header("If-None-Match", eTAG)
-        }
-        val response = try {
-            okHttpClient.newCall(request.build()).execute()
-        } catch (e: SecurityException) {
-            //user can deny INTERNET permission instead of crashing app let user know it's failed
-            throw GeneralSecurityException(e.localizedMessage)
-        }
+        val caller =DaggerHttpHelperComponent.builder()
+            .uri("${BASE_URL}/${pathAfterBaseUrl}")
+            .file(file)
+            .apply {
+                /*Attach previous eTag if there is any*/
+                val eTAG = getETag(pathAfterBaseUrl)
+                if (file.exists() && eTAG != null) {
+                    addETag(eTAG)
+                }
+            }
+            .build()
+            .downloader()
+
+        val response = caller.connect()
+        val responseCode = response.resCode
 
         /*
         * we store ETag from response and attach it on every request
         * so if response code is 304 (unchanged) skip overwriting old file it's still
         * "unchanged" on server
         * */
-        if (response.code == 304) {
+        if (responseCode == 304) {
             return
         }
 
-        if (response.code == 200) {
-            response.body?.use { body ->
-                val inputStream = body.byteStream()
-                val input = BufferedInputStream(inputStream)
-                val output: OutputStream = FileOutputStream(file)
-                val data = ByteArray(1024)
+        if (responseCode == 200) {
 
-                var count = 0
-                while (count != -1) {
-                    count = input.read(data)
-                    if (count != -1) {
-                        output.write(data, 0, count)
-                    }
-                }
-                output.flush()
-                output.close()
-                input.close()
+            caller.saveToFile()
 
-                /*save or updated timestamp this will take care of downgrade*/
-                verifyTimestamp()
+            /*save or updated timestamp this will take care of downgrade*/
+            verifyTimestamp()
 
-                /*save/update newer eTag if there is any*/
-                saveETag(pathAfterBaseUrl, response.headers["ETag"])
-            }
+            /*save/update newer eTag if there is any*/
+            saveETag(pathAfterBaseUrl, response.eTag)
         }
     }
 
