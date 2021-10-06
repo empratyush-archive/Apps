@@ -30,6 +30,16 @@ interface HttpHelperComponent {
         @BindsInstance
         fun addOnResponse(@Nullable @Named("responseListener") listener: (response: Response) -> Unit?): Builder
 
+        @BindsInstance
+        fun addProgressListener(
+            @Nullable @Named("progressListener") progressListener: (
+                read: Long,
+                total: Long,
+                doneInPercent: Double,
+                taskCompleted: Boolean
+            ) -> Unit?
+        ): Builder
+
         fun build(): HttpHelperComponent
 
     }
