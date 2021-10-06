@@ -256,14 +256,14 @@ class App : Application() {
             CoroutineScope(scopeApkDownload).launch(Dispatchers.IO) {
                 try {
                     val apks = apkDownloadHelper.downloadNdVerifySHA256(variant)
-                    { read: Long, total: Long, doneInPercent: Long, taskCompleted: Boolean ->
+                    { read: Long, total: Long, doneInPercent: Double, taskCompleted: Boolean ->
                         apps[variant.pkgName] = InstallStatus.Downloading(
                             appVersion > 0,
                             appVersion,
                             variant.versionCode.toLong(),
                             read.toInt(),
                             total.toInt(),
-                            doneInPercent,
+                            doneInPercent.toLong(),
                             taskCompleted
                         )
                         val taskInfo = TaskInfo(taskId,"Downloading ${variant.pkgName} ...", doneInPercent.toInt())
