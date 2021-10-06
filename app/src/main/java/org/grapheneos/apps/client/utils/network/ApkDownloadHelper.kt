@@ -26,7 +26,7 @@ class ApkDownloadHelper constructor(private val context: Context) {
     @RequiresPermission(Manifest.permission.INTERNET)
     suspend fun downloadNdVerifySHA256(
         variant: PackageVariant,
-        progressListener: (read: Long, total: Long, doneInPercent: Long, taskCompleted: Boolean) -> Unit,
+        progressListener: (read: Long, total: Long, doneInPercent: Double, taskCompleted: Boolean) -> Unit,
     ): List<File> {
 
         val result = mutableListOf<File>()
