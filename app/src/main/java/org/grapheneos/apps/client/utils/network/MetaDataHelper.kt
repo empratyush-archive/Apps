@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import org.bouncycastle.util.encoders.DecoderException
 import org.grapheneos.apps.client.di.DaggerHttpHelperComponent
+import org.grapheneos.apps.client.di.HttpHelperComponent.Companion.defaultConfigBuild
 import org.grapheneos.apps.client.item.MetaData
 import org.grapheneos.apps.client.item.Package
 import org.grapheneos.apps.client.item.PackageVariant
@@ -47,9 +48,20 @@ class MetaDataHelper constructor(context: Context) {
         if (!File(baseDir).exists()) File(baseDir).mkdirs()
         try {
             /*download/validate metadata json, sign and pub files*/
-            fetchContent("metadata.json", metadata)
-            fetchContent("metadata.json.${version}.sig", sign)
-            fetchContent("apps.${version}.pub", pub)
+            val metadataETag = fetchContent("metadata.json", metadata)
+            val metadataSignETag = fetchContent("metadata.json.${version}.sig", sign)
+            val factoryPubETag =  fetchContent("apps.${version}.pub", pub)
+
+
+            /*save or updated timestamp this will take care of downgrade*/
+            verifyTimestamp()
+
+            /*save/update newer eTag if there is any*/
+            saveETag("metadata.json", metadataETag)
+            saveETag("metadata.json.${version}.sig", metadataSignETag)
+            saveETag("apps.${version}.pub", factoryPubETag)
+
+
         } catch (e: UnknownHostException) {
             /*
             There is no internet if we still want to continue with cache data
@@ -142,9 +154,10 @@ class MetaDataHelper constructor(context: Context) {
     }
 
     @Throws(UnknownHostException::class, GeneralSecurityException::class, SecurityException::class)
-    private fun fetchContent(pathAfterBaseUrl: String, file: File) {
+    private fun fetchContent(pathAfterBaseUrl: String, file: File) : String {
 
         val caller =DaggerHttpHelperComponent.builder()
+            .defaultConfigBuild()
             .uri("${BASE_URL}/${pathAfterBaseUrl}")
             .file(file)
             .apply {
@@ -166,19 +179,17 @@ class MetaDataHelper constructor(context: Context) {
         * "unchanged" on server
         * */
         if (responseCode == 304) {
-            return
+            return getETag(pathAfterBaseUrl)!!
         }
 
-        if (responseCode == 200) {
-
+        if (responseCode in 200..299) {
             caller.saveToFile()
-
-            /*save or updated timestamp this will take care of downgrade*/
-            verifyTimestamp()
-
-            /*save/update newer eTag if there is any*/
-            saveETag(pathAfterBaseUrl, response.eTag)
         }
+
+        /*calling !! on nullable object can lead to NullPointerException
+        but server should already send eTag for these small files
+        otherwise it's fine if app crashes*/
+        return response.eTag!!
     }
 
     private fun deleteFiles() = File(baseDir).deleteRecursively()
