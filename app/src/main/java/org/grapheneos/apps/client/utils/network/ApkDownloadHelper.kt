@@ -6,6 +6,7 @@ import androidx.annotation.RequiresPermission
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.grapheneos.apps.client.di.DaggerHttpHelperComponent
+import org.grapheneos.apps.client.di.HttpHelperComponent.Companion.defaultConfigBuild
 import org.grapheneos.apps.client.item.PackageVariant
 import java.io.File
 import java.io.IOException
@@ -47,6 +48,7 @@ class ApkDownloadHelper constructor(private val context: Context) {
                 } else {
 
                     DaggerHttpHelperComponent.builder()
+                        .defaultConfigBuild()
                         .file(downloadedFile)
                         .uri(uri)
                         .addProgressListener(progressListener)
