@@ -49,6 +49,7 @@ class ApkDownloadHelper constructor(private val context: Context) {
                     DaggerHttpHelperComponent.builder()
                         .file(downloadedFile)
                         .uri(uri)
+                        .addProgressListener(progressListener)
                         .build()
                         .downloader()
                         .saveToFile()
