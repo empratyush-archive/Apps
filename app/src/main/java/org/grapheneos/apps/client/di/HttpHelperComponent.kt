@@ -44,6 +44,15 @@ interface HttpHelperComponent {
 
     }
 
+    companion object{
+        fun Builder.defaultConfigBuild() : Builder {
+            return this
+                .addOnResponse {  }
+                .addProgressListener { _, _, _, _ ->  }
+                .addETag(null)
+
+        }
+    }
 
     fun downloader(): HttpModule
 
