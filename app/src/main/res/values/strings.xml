@@ -1,3 +1,58 @@
 <resources>
     <string name="app_name">Apps</string>
+
+    <!--Status-->
+    <string name="install">install</string>
+    <string name="installing">installing</string>
+    <string name="reinstalling">reinstalling</string>
+
+    <string name="reinstallRequired">reinstall required!</string>
+
+    <string name="update">update</string>
+    <string name="updating">updating</string>
+    <string name="updated">updated</string>
+    <string name="alreadyUpToDate">Already up to date</string>
+
+    <string name="uninstall">uninstall</string>
+    <string name="uninstalling">uninstalling</string>
+
+    <string name="downloading">downloading</string>
+    <string name="downloaded">downloaded</string>
+    <string name="failed">failed</string>
+    <string name="failedRetry">failed! retry?</string>
+
+    <string name="syncingMetadata">Syncing metadata</string>
+    <string name="syncUnfinished">Sync isn\'t finished yet</string>
+
+    <!--DownloadCallBack.kt-->
+    <string name="DownloadedSuccessfully">Downloaded successfully</string>
+    <string name="dfSecurityError">Download failed with security error</string>
+    <string name="dfUnknownHostError">Download failed! unable to locate host</string>
+    <string name="dfIoError">Io Error! download failed</string>
+
+    <!--MetadataCallBack.kt-->
+    <string name="syncedSuccessfully">Synced successfully</string>
+    <string name="sfSecurityError">Sync failed with security error</string>
+    <string name="sfJSONError">Sync failed! unable to parse response</string>
+    <string name="sfDecoderError">Sync failed! unable to decode response</string>
+    <string name="sfUnknownHostError">Sync failed! unable to locate host</string>
+
+    <!--APKInstallReceiver-->
+    <string name="storageFailure">Storage Failure</string>
+    <string name="aborted">user aborted installation</string>
+    <string name="invalidFailure">Invalid Failure</string>
+    <string name="incompatibleApp">Incompatible app</string>
+    <string name="conflictingPackagesError">Conflicting packages error</string>
+    <string name="installationBlocked">Installation blocked</string>
+    <string name="unknownError">Unknown Error</string>
+
+    <!--App.kt-->
+    <string name="installationInProgress">"installation in progress"</string>
+    <string name="uninstallationInProgress">uninstallation in progress</string>
+    <string name="allowUnknownSources">Allow installation from this sources first</string>
+
+    <!--item_apps.xml-->
+    <string name="installed">Installed  :</string>
+    <string name="latest">Latest     :</string>
+
 </resources>
