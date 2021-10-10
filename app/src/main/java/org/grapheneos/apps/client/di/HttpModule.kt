@@ -58,7 +58,7 @@ class HttpModule @Inject constructor
         reconnect()
 
         val data = connection.inputStream
-        val size = connection.getHeaderField("Content-Length")?.toLong() ?: 0
+        val size = (connection.getHeaderField("Content-Length")?.toLong() ?: 0) + file.length()
 
         val bufferSize = maxOf(DEFAULT_BUFFER_SIZE, data.available())
         val out = FileOutputStream(file, file.exists())
