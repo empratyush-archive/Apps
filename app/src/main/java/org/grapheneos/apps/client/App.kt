@@ -270,7 +270,7 @@ class App : Application() {
                         )
                         val taskInfo = TaskInfo(
                             taskId,
-                            "Downloading ${variant.pkgName} ...",
+                            "${getString(R.string.downloading)} ${variant.pkgName} ...",
                             doneInPercent.toInt()
                         )
                         if (percentDone < doneInPercent.toInt()) {
