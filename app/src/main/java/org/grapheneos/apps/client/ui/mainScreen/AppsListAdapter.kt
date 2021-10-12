@@ -3,7 +3,6 @@ package org.grapheneos.apps.client.ui.mainScreen
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.view.isInvisible
-import androidx.core.view.isVisible
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import org.grapheneos.apps.client.App
@@ -36,6 +35,8 @@ class AppsListAdapter(private val onItemClick: (packageName: String) -> Unit) :
             }
 
             binding.apply {
+                install.isEnabled = true
+                downloadProgress.isInvisible = true
                 when (installStatus) {
                     is InstallStatus.Installed -> {
                         install.text = App.getString(R.string.uninstall)
@@ -44,7 +45,6 @@ class AppsListAdapter(private val onItemClick: (packageName: String) -> Unit) :
                     is InstallStatus.Installing -> {
                         install.text = App.getString(R.string.installing)
                         install.isEnabled = installStatus.canCancelTask
-                        downloadProgress.isInvisible = true
                     }
                     is InstallStatus.Uninstalling -> {
                         install.text = App.getString(R.string.uninstalling)
@@ -54,31 +54,22 @@ class AppsListAdapter(private val onItemClick: (packageName: String) -> Unit) :
                     is InstallStatus.Downloading -> {
                         install.text = App.getString(R.string.downloading)
                         downloadProgress.setProgressCompat(installStatus.downloadedPercent, false)
-                        downloadProgress.isVisible = true
+                        downloadProgress.isInvisible = false
                     }
                     is InstallStatus.Installable -> {
                         install.text = App.getString(R.string.install)
-                        downloadProgress.isInvisible = true
                     }
                     is InstallStatus.Updated -> {
                         install.text = App.getString(R.string.updated)
-                        install.isEnabled = true
-                        downloadProgress.isInvisible = true
                     }
                     is InstallStatus.Failed -> {
                         install.text = App.getString(R.string.failedRetry)
-                        install.isEnabled = true
-                        downloadProgress.isInvisible = true
                     }
                     is InstallStatus.Updatable -> {
                         install.text = App.getString(R.string.update)
-                        install.isEnabled = true
-                        downloadProgress.isInvisible = true
                     }
                     is InstallStatus.ReinstallRequired -> {
                         install.text = App.getString(R.string.reinstallRequired)
-                        install.isEnabled = true
-                        downloadProgress.isInvisible = true
                     }
                 }
             }
