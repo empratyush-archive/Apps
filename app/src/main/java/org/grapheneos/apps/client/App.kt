@@ -277,6 +277,8 @@ class App : Application() {
                             percentDone = doneInPercent.toInt()
                             tasksInfo.updateStatus(tasksInfo.replaceOrPut(taskInfo))
                             updateInstalledAppInfo(variant.pkgName)
+                        } else if (doneInPercent.toInt() == 100 && !taskCompleted) {
+                            percentDone = 0
                         }
                     }
                     if (requestInstall && apks.isNotEmpty()) {
