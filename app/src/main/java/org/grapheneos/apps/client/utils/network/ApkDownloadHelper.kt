@@ -43,7 +43,6 @@ class ApkDownloadHelper constructor(private val context: Context) {
         downloadDir.mkdirs()
 
         val completeProgress = mutableMapOf<String, Progress>()
-        val size = variant.packagesInfo.size
 
         val downloadTasks = CoroutineScope(Dispatchers.IO).async {
             variant.packagesInfo.map { (fileName, sha256Hash) ->
@@ -51,21 +50,21 @@ class ApkDownloadHelper constructor(private val context: Context) {
 
                     var read = 0L
                     var total = 0L
-                    var doneInPercent = 0.0
                     var completed = true
 
                     completeProgress[fileName] = newProgress
                     completeProgress.forEach { (_, progress) ->
                         read += progress.read
                         total += progress.total
-                        doneInPercent += progress.doneInPercent
                         completed = completed && progress.taskCompleted
                     }
+
+                    var doneInPercent = (if total.toInt() != 0) (read * 100.0) / total else 0.0
 
                     progressListener.invoke(
                         read,
                         total,
-                        doneInPercent / size,
+                        doneInPercent,
                         completed
                     )
                 }
@@ -126,4 +125,3 @@ class ApkDownloadHelper constructor(private val context: Context) {
     }
 
 }
-
