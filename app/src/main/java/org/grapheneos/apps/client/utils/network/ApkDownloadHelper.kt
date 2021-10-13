@@ -59,7 +59,7 @@ class ApkDownloadHelper constructor(private val context: Context) {
                         completed = completed && progress.taskCompleted
                     }
 
-                    var doneInPercent = (if total.toInt() != 0) (read * 100.0) / total else 0.0
+                    var doneInPercent = if (total.toInt() != 0) (read * 100.0) / total else 0.0
 
                     progressListener.invoke(
                         read,
