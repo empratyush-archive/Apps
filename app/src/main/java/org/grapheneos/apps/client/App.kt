@@ -250,7 +250,6 @@ class App : Application() {
 
             val taskId = SystemClock.currentThreadTimeMillis().toInt()
             val taskCompleted = TaskInfo(taskId, "", DOWNLOAD_TASK_FINISHED)
-            var percentDone = 0
             var taskSuccess = false
             var errorMsg = ""
             CoroutineScope(scopeApkDownload).launch(Dispatchers.IO) {
@@ -261,8 +260,8 @@ class App : Application() {
                             appVersion > 0,
                             appVersion,
                             variant.versionCode.toLong(),
-                            read.toInt(),
                             total.toInt(),
+                            read.toInt(),
                             doneInPercent.toInt(),
                             taskCompleted
                         )
@@ -271,11 +270,8 @@ class App : Application() {
                             "${getString(R.string.downloading)} ${variant.pkgName} ...",
                             doneInPercent.toInt()
                         )
-                        if (percentDone < doneInPercent.toInt()) {
-                            percentDone = doneInPercent.toInt()
-                            tasksInfo.updateStatus(tasksInfo.replaceOrPut(taskInfo))
-                            updateInstalledAppInfo(variant.pkgName)
-                        }
+                        tasksInfo.updateStatus(tasksInfo.replaceOrPut(taskInfo))
+                        updateInstalledAppInfo(variant.pkgName)
                     }
                     if (requestInstall && apks.isNotEmpty()) {
                         requestInstall(apks, variant.pkgName)
