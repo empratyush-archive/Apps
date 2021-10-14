@@ -43,6 +43,7 @@ class ApkDownloadHelper constructor(private val context: Context) {
         downloadDir.mkdirs()
 
         val completeProgress = mutableMapOf<String, Progress>()
+        val size = variant.packagesInfo.size
 
         val downloadTasks = CoroutineScope(Dispatchers.IO).async {
             variant.packagesInfo.map { (fileName, sha256Hash) ->
@@ -51,15 +52,17 @@ class ApkDownloadHelper constructor(private val context: Context) {
                     var read = 0L
                     var total = 0L
                     var completed = true
+                    var calculationSize = 0
 
                     completeProgress[fileName] = newProgress
                     completeProgress.forEach { (_, progress) ->
                         read += progress.read
                         total += progress.total
                         completed = completed && progress.taskCompleted
+                        calculationSize++
                     }
 
-                    var doneInPercent = (if total.toInt() != 0) (read * 100.0) / total else 0.0
+                    val doneInPercent = if (calculationSize >= size && total.toInt() != 0) (read * 100.0) / total else 0.0
 
                     progressListener.invoke(
                         read,
@@ -83,6 +86,14 @@ class ApkDownloadHelper constructor(private val context: Context) {
             "https://apps.grapheneos.org/packages/${variant.pkgName}/${variant.versionCode}/${fileName}"
 
         if (downloadedFile.exists() && verifyHash(downloadedFile, sha256Hash)) {
+            progressListener.invoke(
+                Progress(
+                    downloadedFile.length(),
+                    downloadedFile.length(),
+                    100.0,
+                    true
+                )
+            )
              downloadedFile
         } else {
 
