@@ -57,9 +57,9 @@ class AppsListAdapter(private val onItemClick: (packageName: String) -> Unit) :
                                 "  ${status.downloadedPercent} %"
                         hideDownloadProgress = status.downloadedPercent >= 100
                         hideDownloadingInfo = status.downloadedPercent < 0 || hideDownloadProgress
-                        shouldShowInstalling = hideDownloadProgress && status.completed
+                        val shouldShowInstalling = hideDownloadProgress && status.completed
 
-                        install.text = App.getString(R.string.downloading)
+                        install.text = App.getString(if (shouldShowInstalling) R.string.installing else R.string.downloading)
                         if (!hideDownloadingInfo) {
                             downloadProgress.setProgressCompat(status.downloadedPercent, false)
                         } else {
@@ -84,7 +84,7 @@ class AppsListAdapter(private val onItemClick: (packageName: String) -> Unit) :
                     }
                 }
                 downloadProgress.isInvisible = hideDownloadProgress
-                downloadSizeInfo.isGone = hideDownloadProgress
+                downloadSizeInfo.isGone = hideDownloadingInfo
                 install.isEnabled = enableActionButton
             }
         }
