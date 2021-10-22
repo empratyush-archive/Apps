@@ -37,6 +37,7 @@ class AppsListAdapter(private val onItemClick: (packageName: String) -> Unit) :
 
             binding.apply {
                 var hideDownloadProgress = true
+                var hideDownloadingInfo = true
                 var enableActionButton = true
                 when (status) {
                     is InstallStatus.Installed -> {
@@ -54,10 +55,16 @@ class AppsListAdapter(private val onItemClick: (packageName: String) -> Unit) :
                         val sizeInfo = "${status.downloadedSize.toMB()} MB out of " +
                                 "${status.downloadSize.toMB()} MB," +
                                 "  ${status.downloadedPercent} %"
-                        hideDownloadProgress = false
+                        hideDownloadProgress = status.downloadedPercent >= 100
+                        hideDownloadingInfo = status.downloadedPercent < 0 || hideDownloadProgress
+                        shouldShowInstalling = hideDownloadProgress && status.completed
 
                         install.text = App.getString(R.string.downloading)
-                        downloadProgress.setProgressCompat(status.downloadedPercent, false)
+                        if (!hideDownloadingInfo) {
+                            downloadProgress.setProgressCompat(status.downloadedPercent, false)
+                        } else {
+                            downloadProgress.setIndeterminate(true)
+                        }
                         downloadSizeInfo.text = sizeInfo
                     }
                     is InstallStatus.Installable -> {
