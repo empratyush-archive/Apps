@@ -60,11 +60,10 @@ class AppsListAdapter(private val onItemClick: (packageName: String) -> Unit) :
                         val shouldShowInstalling = hideDownloadProgress && status.completed
 
                         install.text = App.getString(if (shouldShowInstalling) R.string.installing else R.string.downloading)
-                        if (!hideDownloadingInfo) {
-                            downloadProgress.setProgressCompat(status.downloadedPercent, false)
-                        } else {
-                            downloadProgress.setIndeterminate(true)
+                        if (hideDownloadingInfo) {
+                            downloadProgress.isIndeterminate = true
                         }
+                        downloadProgress.setProgressCompat(status.downloadedPercent, false)
                         downloadSizeInfo.text = sizeInfo
                     }
                     is InstallStatus.Installable -> {
