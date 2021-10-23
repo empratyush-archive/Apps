@@ -61,6 +61,7 @@ class AppsListAdapter(private val onItemClick: (packageName: String) -> Unit) :
                         downloadSizeInfo.text = sizeInfo
                     }
                     is InstallStatus.Installable -> {
+                        enableActionButton = !status.isClicked
                         install.text = App.getString(R.string.install)
                     }
                     is InstallStatus.Updated -> {
