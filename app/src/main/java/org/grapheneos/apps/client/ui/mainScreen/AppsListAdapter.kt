@@ -34,7 +34,7 @@ class AppsListAdapter(private val onItemClick: (packageName: String) -> Unit) :
             binding.install.setOnClickListener {
                 onItemClick.invoke(currentItem.name)
                 when (status) {
-                    is InstallStatus.Installable {
+                    is InstallStatus.Installable -> {
                         binding.install.isEnabled = false
                     }
                     else -> {}
