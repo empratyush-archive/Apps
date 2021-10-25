@@ -256,7 +256,7 @@ class App : Application() {
                 try {
                     val apks = apkDownloadHelper.downloadNdVerifySHA256(variant)
                     { read: Long, total: Long, doneInPercent: Double, taskCompleted: Boolean ->
-                        if (doneInPercent != 1.0 && read.toInt() != total.toInt()) {
+                        if (doneInPercent in (0.0..100.0) && read.toInt() != total.toInt()) {
                             apps[variant.pkgName] = InstallStatus.Downloading(
                                 appVersion > 0,
                                 appVersion,
@@ -266,6 +266,16 @@ class App : Application() {
                                 doneInPercent.toInt(),
                                 taskCompleted
                             )
+                        } else {
+                            when (apps[variant.pkgName]) {
+                                is InstallStatus.Installable -> {
+                                    apps[variant.pkgName] = InstallStatus.Installable(
+                                        variant.versionCode.toLong(),
+                                        true
+                                    )
+                                }
+                                else -> {}
+                            }
                         }
                         val taskInfo = TaskInfo(
                             taskId,
@@ -380,11 +390,6 @@ class App : Application() {
                     callback.invoke("${status.downloadedPercent}% ${getString(R.string.downloaded)} ")
                 }
                 is InstallStatus.Installable -> {
-                    apps[variant.pkgName] = InstallStatus.Installable(
-                        variant.versionCode.toLong(),
-                        true
-                    )
-                    updateInstalledAppInfo(variant.pkgName)
                     downloadPackages(variant, true) { error -> callback.invoke(error.genericMsg) }
                 }
                 is InstallStatus.Installed -> {
