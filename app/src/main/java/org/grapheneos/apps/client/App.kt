@@ -266,16 +266,6 @@ class App : Application() {
                                 doneInPercent.toInt(),
                                 taskCompleted
                             )
-                        } else {
-                            when (apps[variant.pkgName]) {
-                                is InstallStatus.Installable -> {
-                                    apps[variant.pkgName] = InstallStatus.Installable(
-                                        variant.versionCode.toLong(),
-                                        true
-                                    )
-                                }
-                                else -> {}
-                            }
                         }
                         val taskInfo = TaskInfo(
                             taskId,
@@ -390,6 +380,16 @@ class App : Application() {
                     callback.invoke("${status.downloadedPercent}% ${getString(R.string.downloaded)} ")
                 }
                 is InstallStatus.Installable -> {
+                    apps[variant.pkgName] = InstallStatus.Downloading(
+                        status.latestVersion != 0L,
+                        status.latestVersion,
+                        variant.versionCode.toLong(),
+                        100,
+                        0,
+                        0,
+                        false
+                    )
+                    updateInstalledAppInfo(variant.pkgName)
                     downloadPackages(variant, true) { error -> callback.invoke(error.genericMsg) }
                 }
                 is InstallStatus.Installed -> {
