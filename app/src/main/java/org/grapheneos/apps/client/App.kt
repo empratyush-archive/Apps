@@ -341,10 +341,10 @@ class App : Application() {
                 metadata.forPackage(pkgName)?.versionCode?.toLong() ?: 0,
                 true
             )
+            updateInstalledAppInfo(pkgName)
             val sessionId = PackageManagerHelper().install(this, apks)
             sessionNdApps[sessionId] = pkgName
             conformationAwaitedPackages.remove(pkgName)
-            updateInstalledAppInfo(pkgName)
         } else {
             conformationAwaitedPackages[pkgName] = apks
         }
