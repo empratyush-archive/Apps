@@ -36,8 +36,11 @@ class AppsListAdapter(private val onItemClick: (packageName: String) -> Unit) :
             }
 
             binding.apply {
-                var hideDownloadProgress = true
+
+                var isIndeterminateProcessing = false
+                var isDownloading = false
                 var enableActionButton = true
+
                 when (status) {
                     is InstallStatus.Installed -> {
                         install.text = App.getString(R.string.uninstall)
@@ -45,18 +48,20 @@ class AppsListAdapter(private val onItemClick: (packageName: String) -> Unit) :
                     is InstallStatus.Installing -> {
                         enableActionButton= status.canCancelTask
                         install.text = App.getString(R.string.installing)
+                        isIndeterminateProcessing = true
                     }
                     is InstallStatus.Uninstalling -> {
                         enableActionButton = false
                         install.text = App.getString(R.string.uninstalling)
+                        isIndeterminateProcessing = true
                     }
                     is InstallStatus.Downloading -> {
                         val sizeInfo = "${status.downloadedSize.toMB()} MB out of " +
                                 "${status.downloadSize.toMB()} MB," +
                                 "  ${status.downloadedPercent} %"
-                        hideDownloadProgress = false
-
-                        install.text = App.getString(R.string.downloading)
+                        isIndeterminateProcessing = (status.downloadSize == 0) && (status.downloadedSize == 0)
+                        isDownloading = !isIndeterminateProcessing && status.downloadedPercent != 0
+                        install.text = status.status
                         downloadProgress.setProgressCompat(status.downloadedPercent, false)
                         downloadSizeInfo.text = sizeInfo
                     }
@@ -77,8 +82,10 @@ class AppsListAdapter(private val onItemClick: (packageName: String) -> Unit) :
                         install.text = App.getString(R.string.reinstallRequired)
                     }
                 }
-                downloadProgress.isInvisible = hideDownloadProgress
-                downloadSizeInfo.isGone = hideDownloadProgress
+
+                downloadProgress.isInvisible = !(isIndeterminateProcessing || isDownloading)
+                downloadProgress.isIndeterminate = isIndeterminateProcessing
+                downloadSizeInfo.isGone = !isDownloading
                 install.isEnabled = enableActionButton
             }
         }
