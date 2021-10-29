@@ -246,8 +246,18 @@ class App : Application() {
         requestInstall: Boolean,
         callback: (error: DownloadCallBack) -> Unit
     ) {
+        val appVersion = getInstalledAppVersionCode(variant.pkgName)
+        apps[variant.pkgName] = InstallStatus.Downloading(
+            appVersion > 0,
+            appVersion,
+            variant.versionCode.toLong(),
+            0,
+            0,
+            0,
+            false
+        )
+        updateInstalledAppInfo(variant.pkgName)
         executor.execute {
-            val appVersion = getInstalledAppVersionCode(variant.pkgName)
 
             val taskId = SystemClock.currentThreadTimeMillis().toInt()
             val taskCompleted = TaskInfo(taskId, "", DOWNLOAD_TASK_FINISHED)
@@ -381,16 +391,6 @@ class App : Application() {
                     callback.invoke("${status.downloadedPercent}% ${getString(R.string.downloaded)} ")
                 }
                 is InstallStatus.Installable -> {
-                    apps[variant.pkgName] = InstallStatus.Downloading(
-                        status.latestVersion != 0L,
-                        status.latestVersion,
-                        variant.versionCode.toLong(),
-                        100,
-                        0,
-                        0,
-                        false
-                    )
-                    updateInstalledAppInfo(variant.pkgName)
                     downloadPackages(variant, true) { error -> callback.invoke(error.genericMsg) }
                 }
                 is InstallStatus.Installed -> {
