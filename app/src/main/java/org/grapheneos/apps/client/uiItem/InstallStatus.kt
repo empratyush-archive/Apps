@@ -1,7 +1,10 @@
 package org.grapheneos.apps.client.uiItem
 
+import org.grapheneos.apps.client.App
+import org.grapheneos.apps.client.R
+
 sealed class InstallStatus(
-    val status: String,
+    open val status: String,
     val installedV: String = "N/A",
     val latestV: String
 ) {
@@ -44,6 +47,7 @@ sealed class InstallStatus(
     )
 
     data class Downloading(
+        override val status: String = App.getString(R.string.downloading),
         val isInstalled: Boolean,
         val installedVersion: Long?,
         val latestVersion: Long,
@@ -52,7 +56,7 @@ sealed class InstallStatus(
         val downloadedPercent: Int,
         val completed: Boolean
     ) : InstallStatus(
-        "",
+        status,
         latestV = latestVersion.toString(),
         installedV = installedVersion.toApkVersion()
     )
