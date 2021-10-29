@@ -248,6 +248,7 @@ class App : Application() {
     ) {
         val appVersion = getInstalledAppVersionCode(variant.pkgName)
         apps[variant.pkgName] = InstallStatus.Downloading(
+            App.getString(R.string.processing),
             appVersion > 0,
             appVersion,
             variant.versionCode.toLong(),
@@ -258,7 +259,6 @@ class App : Application() {
         )
         updateInstalledAppInfo(variant.pkgName)
         executor.execute {
-
             val taskId = SystemClock.currentThreadTimeMillis().toInt()
             val taskCompleted = TaskInfo(taskId, "", DOWNLOAD_TASK_FINISHED)
             var taskSuccess = false
@@ -269,13 +269,13 @@ class App : Application() {
                     { read: Long, total: Long, doneInPercent: Double, taskCompleted: Boolean ->
                         if (doneInPercent in (0.0..100.0) && read.toInt() != total.toInt()) {
                             apps[variant.pkgName] = InstallStatus.Downloading(
-                                appVersion > 0,
-                                appVersion,
-                                variant.versionCode.toLong(),
-                                total.toInt(),
-                                read.toInt(),
-                                doneInPercent.toInt(),
-                                taskCompleted
+                                isInstalled = appVersion > 0,
+                                installedVersion = appVersion,
+                                latestVersion = variant.versionCode.toLong(),
+                                downloadSize = total.toInt(),
+                                downloadedSize = read.toInt(),
+                                downloadedPercent = doneInPercent.toInt(),
+                                completed = taskCompleted
                             )
                         }
                         val taskInfo = TaskInfo(
