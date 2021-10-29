@@ -16,6 +16,7 @@
     <string name="uninstall">uninstall</string>
     <string name="uninstalling">uninstalling</string>
 
+    <string name="processing">processing</string>
     <string name="downloading">downloading</string>
     <string name="downloaded">downloaded</string>
     <string name="failed">failed</string>
