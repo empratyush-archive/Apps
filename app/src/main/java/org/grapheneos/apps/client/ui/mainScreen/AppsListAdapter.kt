@@ -62,7 +62,7 @@ class AppsListAdapter(private val onItemClick: (packageName: String) -> Unit) :
                         isIndeterminateProcessing = (status.downloadSize == 0) && (status.downloadedSize == 0)
                         isDownloading = !isIndeterminateProcessing
                         install.text = status.status
-                        downloadProgress.setProgressCompat(status.downloadedPercent, false)
+                        downloadProgress.setProgressCompat(status.downloadedPercent, true)
                         downloadSizeInfo.text = sizeInfo
                     }
                     is InstallStatus.Installable -> {
