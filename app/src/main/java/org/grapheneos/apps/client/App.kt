@@ -230,7 +230,7 @@ class App : Application() {
                 App.getString(R.string.processing),
                 0,
                 0,
-                0,
+                0.0,
                 false
             )
         )
@@ -250,7 +250,7 @@ class App : Application() {
                                 DownloadStatus.Downloading(
                                     downloadSize = total.toInt(),
                                     downloadedSize = read.toInt(),
-                                    downloadedPercent = doneInPercent.toInt(),
+                                    downloadedPercent = doneInPercent,
                                     completed = taskCompleted
                                 )
                             ).withUpdatedTask(
