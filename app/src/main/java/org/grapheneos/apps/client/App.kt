@@ -91,7 +91,7 @@ class App : Application() {
     private val scopeApkDownload by lazy { Dispatchers.IO }
     private val scopeMetadataRefresh by lazy { Dispatchers.IO }
     private lateinit var refreshJob: CompletableJob
-
+    private var taskIdSeed = Random(SystemClock.currentThreadTimeMillis().toInt()).nextInt(1, 1000)
     private val appsChangesReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
 
@@ -226,8 +226,8 @@ class App : Application() {
         requestInstall: Boolean,
         callback: (error: DownloadCallBack) -> Unit
     ) {
-        val taskId = SystemClock.currentThreadTimeMillis()
-            .toInt() + Random(SystemClock.currentThreadTimeMillis()).nextInt(1, 10000)
+        taskIdSeed++
+        val taskId = taskIdSeed
         packagesInfo[variant.pkgName] = packagesInfo[variant.pkgName]!!.withUpdatedDownloadStatus(
             DownloadStatus.Downloading(
                 App.getString(R.string.processing),
