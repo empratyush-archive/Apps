@@ -51,6 +51,7 @@ import java.security.GeneralSecurityException
 import java.util.concurrent.Executors
 import javax.inject.Inject
 import javax.net.ssl.SSLHandshakeException
+import kotlin.random.Random
 
 @HiltAndroidApp
 class App : Application() {
@@ -214,7 +215,7 @@ class App : Application() {
             } else {
                 InstallStatus.ReinstallRequired(appInfo.longVersionCode, latestVersion)
             }
-        } catch (e: Exception) {
+        } catch (e: PackageManager.NameNotFoundException) {
             return InstallStatus.Installable(latestVersion)
         }
     }
@@ -225,7 +226,8 @@ class App : Application() {
         requestInstall: Boolean,
         callback: (error: DownloadCallBack) -> Unit
     ) {
-        val taskId = SystemClock.currentThreadTimeMillis().toInt()
+        val taskId = SystemClock.currentThreadTimeMillis()
+            .toInt() + Random(SystemClock.currentThreadTimeMillis()).nextInt(1, 10000)
         packagesInfo[variant.pkgName] = packagesInfo[variant.pkgName]!!.withUpdatedDownloadStatus(
             DownloadStatus.Downloading(
                 App.getString(R.string.processing),
