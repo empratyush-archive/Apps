@@ -22,7 +22,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Apps.DayNight"
         android:usesCleartextTraffic="false">
-        <activity android:name=".ui.container.MainActivity"
+        <activity
+            android:name=".ui.container.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -31,7 +32,7 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name=".utils.APKInstallReceiver"/>
+        <receiver android:name=".utils.APKInstallReceiver" />
 
         <service
             android:name=".service.SeamlessUpdaterJob"
