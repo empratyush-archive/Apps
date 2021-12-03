@@ -12,6 +12,7 @@ import org.grapheneos.apps.client.App
  * */
 data class PackageInfo(
     val id: String,
+    val appName : String,
     val sessionInfo: SessionInfo,
     val packageVariant: PackageVariant,
     val taskInfo: TaskInfo = TaskInfo(-1, "", App.DOWNLOAD_TASK_FINISHED),
@@ -21,25 +22,25 @@ data class PackageInfo(
 
     fun withUpdatedInstallStatus(newStatus: InstallStatus): PackageInfo =
         PackageInfo(
-            id, sessionInfo, packageVariant, taskInfo,
+            id,appName, sessionInfo, packageVariant, taskInfo,
             downloadStatus, newStatus
         )
 
     fun withUpdatedDownloadStatus(newStatus: DownloadStatus?): PackageInfo =
         PackageInfo(
-            id, sessionInfo, packageVariant, taskInfo,
+            id,appName, sessionInfo, packageVariant, taskInfo,
             newStatus, installStatus
         )
 
     fun withUpdatedSession(newSessionInfo: SessionInfo): PackageInfo =
         PackageInfo(
-            id, newSessionInfo, packageVariant, taskInfo,
+            id,appName, newSessionInfo, packageVariant, taskInfo,
             downloadStatus, installStatus
         )
 
     fun withUpdatedTask(newTaskInfo: TaskInfo): PackageInfo =
         PackageInfo(
-            id, sessionInfo, packageVariant, newTaskInfo,
+            id,appName, sessionInfo, packageVariant, newTaskInfo,
             downloadStatus, installStatus
         )
 
