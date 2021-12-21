@@ -211,11 +211,16 @@ class App : Application() {
         return try {
             val appInfo = pm.getPackageInfo(pkgName, 0)
             val installerInfo = pm.getInstallSourceInfo(pkgName)
+            val currentVersion = appInfo.longVersionCode
 
             if (packageName.equals(installerInfo.initiatingPackageName)) {
-                InstallStatus.Installed(appInfo.longVersionCode, latestVersion)
+                if (currentVersion < latestVersion) {
+                    InstallStatus.Updatable(currentVersion, latestVersion)
+                } else {
+                    InstallStatus.Installed(currentVersion, latestVersion)
+                }
             } else {
-                InstallStatus.ReinstallRequired(appInfo.longVersionCode, latestVersion)
+                InstallStatus.ReinstallRequired(currentVersion, latestVersion)
             }
         } catch (e: PackageManager.NameNotFoundException) {
             return InstallStatus.Installable(latestVersion)
