@@ -123,13 +123,14 @@ class MetaDataHelper constructor(context: Context) {
         keys().forEach { pkgName ->
             val pkg = getJSONObject(pkgName)
             val variants = mutableListOf<PackageVariant>()
+            var appName = pkgName
 
             pkg.keys().forEach { variant ->
 
                 val variantData = pkg.getJSONObject(variant)
                 val packages = variantData.getJSONArray("packages")
                 val hashes = variantData.getJSONArray("hashes")
-                val appName = if (pkg.has("appName")) pkg.getString("appName") else pkgName
+                appName = if (variantData.has("appName")) variantData.getString("appName") else pkgName
 
                 if (packages.length() != hashes.length()) {
                     throw GeneralSecurityException("Package hash size miss match")
@@ -149,7 +150,7 @@ class MetaDataHelper constructor(context: Context) {
                     )
                 )
             }
-            result[pkgName] = Package(pkgName, pkgName, variants)
+            result[pkgName] = Package(appName, pkgName, variants)
         }
 
         return result
