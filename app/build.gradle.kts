@@ -89,7 +89,7 @@ dependencies {
     implementation("androidx.preference:preference-ktx:1.1.1")
 
     /*Signify java */
-    implementation("org.bouncycastle:bcpkix-jdk15to18:1.69")
+    implementation("org.bouncycastle:bcpkix-jdk15to18:1.70")
 
     /*Kotlin coroutines*/
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
