@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Apps</string>
 
@@ -60,5 +61,17 @@
     <!--main_menu.xml-->
     <string name="settings">settings</string>
 
+    <!-- Preference Titles -->
+    <string name="settings_header">Settings</string>
+    
+    <!-- Autodownload Preferences -->
+    <string name="autodownload_title">Auto-download installed apps</string>
+    <string name="autodownload_summary_on">Automatically download app updates for installed apps</string>
+    <string name="autodownload_summary_off">Only download app updates for installed apps when manually requested</string>
+
+    <!-- Autoupdate Preferences -->
+    <string name="autoupdate_title">Auto-update installed apps</string>
+    <string name="autoupdate_summary_on">Automatically install app updates</string>
+    <string name="autoupdate_summary_off">Only install app updates when manually requested</string>
 
 </resources>

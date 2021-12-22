@@ -1,0 +1,21 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory app:title="@string/settings_header"
+        app:allowDividerAbove="false"
+        app:allowDividerBelow="true">
+
+        <SwitchPreferenceCompat app:key="autodownload"
+            app:title="@string/autodownload_title"
+            app:summaryOn="@string/autodownload_summary_on"
+            app:summaryOff="@string/autodownload_summary_off"
+            app:defaultValue="@string/autodownload_default" />
+
+        <SwitchPreferenceCompat app:key="autoupdate"
+            app:title="@string/autoupdate_title"
+            app:summaryOn="@string/autoupdate_summary_on"
+            app:summaryOff="@string/autoupdate_summary_off"
+            app:defaultValue="@string/autoupdate_default" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>
