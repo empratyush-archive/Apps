@@ -76,7 +76,7 @@ android {
 
 dependencies {
     /*Default android*/
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.6.0")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.6.10")
     implementation("androidx.core:core-ktx:1.7.0")
     implementation("androidx.appcompat:appcompat:1.4.0")
     implementation("com.google.android.material:material:1.5.0-beta01")
