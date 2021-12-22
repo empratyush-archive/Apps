@@ -6,11 +6,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.*
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import org.grapheneos.apps.client.App
+import org.grapheneos.apps.client.R
 import org.grapheneos.apps.client.databinding.MainScreenBinding
 import org.grapheneos.apps.client.item.PackageInfo
 import org.grapheneos.apps.client.uiItem.InstallablePackageInfo
@@ -111,6 +113,15 @@ class MainScreen : Fragment() {
             binding.syncing.isVisible = isSyncing
             binding.appsRecyclerView.isVisible = !isSyncing
             binding.retrySync.isVisible = !isSyncing && canRetry
+            binding.toolbar.setOnMenuItemClickListener {
+                when (it.itemId) {
+                    R.id.settings_menu -> {
+                        findNavController().navigate(R.id.action_to_settings)
+                        true
+                    }
+                    else -> false
+                }
+            }
         }
     }
 
