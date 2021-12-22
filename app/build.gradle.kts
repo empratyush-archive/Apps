@@ -97,7 +97,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2")
 
     /*Dagger Hilt*/
-    implementation("com.google.dagger:hilt-android:2.40.2")
+    implementation("com.google.dagger:hilt-android:2.40.5")
     kapt("com.google.dagger:hilt-android-compiler:2.40.2")
 
     /*Default test suite*/
