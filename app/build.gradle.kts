@@ -92,7 +92,7 @@ dependencies {
     implementation("org.bouncycastle:bcpkix-jdk15to18:1.69")
 
     /*Kotlin coroutines*/
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2")
 
