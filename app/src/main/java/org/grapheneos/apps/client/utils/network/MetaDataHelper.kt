@@ -121,7 +121,7 @@ class MetaDataHelper constructor(context: Context) {
 
         keys().forEach { pkgName ->
             val pkg = getJSONObject(pkgName)
-            val variants = mutableListOf<PackageVariant>()
+            val variants = mutableMapOf<String, PackageVariant>()
 
             pkg.keys().forEach { variant ->
 
@@ -139,7 +139,7 @@ class MetaDataHelper constructor(context: Context) {
                     packageInfoMap[packages.getString(i)] = hashes.getString(i)
                 }
 
-                variants.add(
+                variants[variant] = (
                     PackageVariant(
                         appName,
                         pkgName,

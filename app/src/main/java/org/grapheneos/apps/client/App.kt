@@ -40,6 +40,7 @@ import org.grapheneos.apps.client.item.SessionInfo
 import org.grapheneos.apps.client.item.TaskInfo
 import org.grapheneos.apps.client.service.KeepAppActive
 import org.grapheneos.apps.client.ui.settings.MainSettings
+import org.grapheneos.apps.client.ui.mainScreen.ChannelPreferenceManager
 import org.grapheneos.apps.client.utils.PackageManagerHelper.Companion.pmHelper
 import org.grapheneos.apps.client.utils.network.ApkDownloadHelper
 import org.grapheneos.apps.client.utils.network.MetaDataHelper
@@ -172,9 +173,17 @@ class App : Application() {
                     response.packages.forEach {
                         val value = it.value
                         val pkgName = value.packageName
+                        val channelPref = ChannelPreferenceManager
+                            .getPackageChannel(this@App, pkgName)
+                        val channelVariant = if (value.variants[channelPref] != null) {
+                            value.variants[channelPref]!!
+                        } else {
+                            ChannelPreferenceManager.savePackageChannel(this@App, pkgName)
+                            value.variants[getString(R.string.channel_default)]!!
+                                                 }
                         val installStatus = getInstalledStatus(
                             pkgName,
-                            value.variants[0].versionCode.toLong()
+                            channelVariant.versionCode.toLong()
                         )
 
                         val info = packagesInfo.getOrDefault(
@@ -182,8 +191,8 @@ class App : Application() {
                             PackageInfo(
                                 id = pkgName,
                                 sessionInfo = SessionInfo(),
-                                selectedVariant = value.variants[0],
-                                allVariant = value.variants,
+                                selectedVariant = channelVariant,
+                                allVariant = value.variants.values.toList(),
                                 installStatus = installStatus
                             )
                         )
