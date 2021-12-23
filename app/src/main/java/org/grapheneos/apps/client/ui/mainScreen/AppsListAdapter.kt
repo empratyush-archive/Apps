@@ -2,24 +2,39 @@ package org.grapheneos.apps.client.ui.mainScreen
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
+import androidx.appcompat.widget.ListPopupWindow
 import androidx.core.view.isGone
 import androidx.core.view.isInvisible
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import org.grapheneos.apps.client.R
 import org.grapheneos.apps.client.databinding.ItemAppsBinding
 import org.grapheneos.apps.client.item.DownloadStatus
 import org.grapheneos.apps.client.item.InstallStatus
+import org.grapheneos.apps.client.item.PackageInfo
+import org.grapheneos.apps.client.item.PackageVariant
 import org.grapheneos.apps.client.uiItem.InstallablePackageInfo
 import kotlin.math.roundToInt
 
-class AppsListAdapter(private val onItemClick: (packageName: String) -> Unit) :
+class AppsListAdapter(
+    private val onInstallItemClick: (packageName: String) -> Unit,
+    private val onChannelItemClick: (packageName: String, channel: String,
+                                     (packageInfo: PackageInfo) -> Unit) -> Unit,
+    private val onUninstallItemClick: (packageName: String) -> Unit,
+    private val onAppInfoItemClick: (packageName: String) -> Unit,
+) :
     ListAdapter<InstallablePackageInfo, AppsListAdapter.AppsListViewHolder>(
         InstallablePackageInfo.UiItemDiff()
     ) {
 
     inner class AppsListViewHolder(
         private val binding: ItemAppsBinding,
-        private val onItemClick: (packageName: String) -> Unit
+        private val onInstallItemClick: (packageName: String) -> Unit,
+        private val onChannelItemClick: (packageName: String, channel: String,
+                                         (packageInfo: PackageInfo) -> Unit) -> Unit,
+        private val onUninstallItemClick: (packageName: String) -> Unit,
+        private val onAppInfoItemClick: (packageName: String) -> Unit,
     ) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(position: Int) {
@@ -27,12 +42,11 @@ class AppsListAdapter(private val onItemClick: (packageName: String) -> Unit) :
             val info = currentItem.packageInfo
             val installStatus = info.installStatus
             val downloadStatus = info.downloadStatus
+            val packageVariant = info.selectedVariant
+            val packageVariants = info.allVariant
+            val packageName = packageVariant.pkgName
 
-            binding.apply {
-                appName.text = currentItem.packageInfo.selectedVariant.appName
-                latestVersion.text = installStatus.latestV
-                installedVersion.text = installStatus.installedV
-            }
+            rebind(position)
 
             if (downloadStatus != null) {
                 binding.apply {
@@ -40,6 +54,8 @@ class AppsListAdapter(private val onItemClick: (packageName: String) -> Unit) :
                     install.isEnabled = !downloadStatus.isDownloading
                     downloadSizeInfo.isGone = !downloadStatus.isDownloading
                     downloadProgress.isInvisible = !downloadStatus.isDownloading
+                    appInfoGroup.isGone = true
+                    channel.isEnabled = false
 
                     if (downloadStatus is DownloadStatus.Downloading) {
                         val progress = downloadStatus.downloadedPercent.roundToInt()
@@ -64,19 +80,73 @@ class AppsListAdapter(private val onItemClick: (packageName: String) -> Unit) :
                         downloadProgress.isIndeterminate = true
                         downloadSizeInfo.isGone = true
                         install.isEnabled = false
+                        appInfoGroup.isGone = true
+                        channel.isEnabled = false
                     } else {
                         install.isEnabled = true
                         downloadProgress.isInvisible = true
                         downloadSizeInfo.isGone = true
+                        channel.isEnabled = true
                     }
                 }
             }
 
             binding.install.setOnClickListener {
-                onItemClick.invoke(currentItem.name)
+                binding.installGroup.uncheck(binding.install.id)
+                onInstallItemClick.invoke(packageName)
             }
+
+            binding.channel.setOnClickListener { view ->
+                binding.installGroup.uncheck(binding.channel.id)
+                val listPopupWindowButton = binding.channel
+                val listPopupWindow = ListPopupWindow(view.context, null,
+                    R.attr.listPopupWindowStyle)
+                listPopupWindow.anchorView = listPopupWindowButton
+                val mutableItems = mutableListOf<String>()
+                packageVariants.forEach { variant: PackageVariant ->
+                    mutableItems.add(variant.type)
+                }
+                val items = mutableItems.toList()
+                val adapter = ArrayAdapter(view.context, R.layout.list_popup_window_item, items)
+                listPopupWindow.setAdapter(adapter)
+                listPopupWindow.setOnItemClickListener { _, _, whichVariant: Int, _ ->
+                    val chosenVariant = items[whichVariant]
+                    onChannelItemClick.invoke(packageName, chosenVariant) { packageInfo ->
+                        rebind(position, packageInfo)
+                    }
+                    listPopupWindow.dismiss()
+                }
+                listPopupWindow.show()
+            }
+
+            binding.appInfo.setOnClickListener {
+                binding.appInfoGroup.uncheck(binding.appInfo.id)
+                onAppInfoItemClick.invoke(packageName)
+            }
+
+            binding.appRemove.setOnClickListener {
+                binding.appInfoGroup.uncheck(binding.appRemove.id)
+                onUninstallItemClick.invoke(packageName)
+            }
+
         }
 
+        private fun rebind(
+            position: Int,
+            updatedPackageInfo: PackageInfo = currentList[position].packageInfo
+        ) {
+            val installStatus = updatedPackageInfo.installStatus
+            val packageVariant = updatedPackageInfo.selectedVariant
+
+            binding.apply {
+                appName.text = updatedPackageInfo.selectedVariant.appName
+                latestVersion.text = installStatus.latestV
+                installedVersion.text = installStatus.installedV
+                appInfoGroup.isGone = installStatus.installedV == "N/A"
+                channel.text = packageVariant.type
+                install.text = installStatus.status
+            }
+        }
     }
 
     private fun Int.toMB(): String = String.format("%.3f", (this / 1024.0 / 1024.0))
@@ -87,7 +157,10 @@ class AppsListAdapter(private val onItemClick: (packageName: String) -> Unit) :
             parent,
             false
         ),
-        onItemClick
+        onInstallItemClick,
+        onChannelItemClick,
+        onUninstallItemClick,
+        onAppInfoItemClick,
     )
 
     override fun onBindViewHolder(holder: AppsListViewHolder, position: Int) = holder.bind(position)
