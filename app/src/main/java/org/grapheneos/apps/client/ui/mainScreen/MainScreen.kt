@@ -104,6 +104,11 @@ class MainScreen : Fragment() {
         appsViewModel.refreshMetadata {
             updateUi(isSyncing = false, canRetry = !it.isSuccessFull)
             showSnackbar(it.genericMsg, !it.isSuccessFull)
+            if (it.isSuccessFull) {
+                appsViewModel.maybeAutoDownload { msg ->
+                    showSnackbar(msg)
+                }
+            }
         }
     }
 
