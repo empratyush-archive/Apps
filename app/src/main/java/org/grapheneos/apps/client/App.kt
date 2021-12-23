@@ -349,6 +349,36 @@ class App : Application() {
 
     }
 
+    fun openAppDetails(pkgName: String) {
+        isActivityRunning?.startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+            .setData(Uri.parse(String.format("package:%s", pkgName)))
+            .addCategory(Intent.CATEGORY_DEFAULT), null)
+    }
+
+    fun uninstallPackage(pkgName: String, callback: (result: String) -> Unit) {
+        callback.invoke("${getString(R.string.uninstalling)} $pkgName")
+        pmHelper().uninstall(pkgName)
+    }
+
+    fun handleOnVariantChange(
+        packageName: String,
+        channel: String,
+        callback: (info: PackageInfo) -> Unit
+    ) {
+        val infoToCheck = packagesInfo[packageName]?: return
+        val channelVariants = infoToCheck.allVariant
+        var channelVariant: PackageVariant = infoToCheck.selectedVariant
+        channelVariants.forEach { packageVariant ->
+            if (packageVariant.type == channel) {
+                channelVariant = packageVariant
+            }
+        }
+        val installStatus = getInstalledStatus(packageName, channelVariant.versionCode.toLong())
+        packagesInfo[packageName] = infoToCheck.withUpdatedVariant(channelVariant)
+            .withUpdatedInstallStatus(installStatus)
+        callback.invoke(packagesInfo[packageName]!!)
+    }
+
     fun maybeAutoDownload(callback: (result: String) -> Unit) {
         if (this::autoDownloadJob.isInitialized && autoDownloadJob.isActive
             && !autoDownloadJob.isCompleted && !autoDownloadJob.isCancelled) {
