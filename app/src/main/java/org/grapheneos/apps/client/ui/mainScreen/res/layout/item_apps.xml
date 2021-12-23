@@ -99,17 +99,65 @@
             app:layout_constraintStart_toStartOf="parent"
             tools:text="2.3 MB out of 109.0 MB 74%" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/install"
-            style="@style/Widget.Material3.Button.OutlinedButton"
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:id="@+id/appInfoGroup"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="24dp"
-            android:textAllCaps="false"
-            app:layout_constraintBottom_toBottomOf="@+id/latestVersion"
+            app:layout_constraintTop_toBottomOf="@+id/appName"
+            app:layout_constraintBottom_toTopOf="@+id/installGroup"
             app:layout_constraintEnd_toEndOf="parent"
+            tools:visibility="visible">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/appInfo"
+                style="@style/Widget.Material3.Button.IconOnly"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                app:icon="@drawable/app_info"
+                app:iconTintMode="src_atop"
+                tools:icon="@drawable/app_info"
+                tools:ignore="TouchTargetSizeCheck" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/appRemove"
+                style="@style/Widget.Material3.Button.IconOnly"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:icon="@drawable/app_delete"
+                app:iconTintMode="src_atop"
+                tools:icon="@drawable/app_delete" />
+
+        </com.google.android.material.button.MaterialButtonToggleGroup>
+
+
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:id="@+id/installGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="24dp"
             app:layout_constraintTop_toTopOf="@+id/installedTitle"
-            tools:text="install" />
+            app:layout_constraintBottom_toTopOf="@+id/downloadProgress"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/channel"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/channel_default"
+                android:textColor="?attr/colorPrimary"
+                tools:text="@string/channel_default" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/install"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/install"
+                android:textColor="?attr/colorPrimary"
+                tools:text="@string/install" />
+        </com.google.android.material.button.MaterialButtonToggleGroup>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -41,11 +41,21 @@ class MainScreen : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val appsListAdapter = AppsListAdapter { packageName ->
+        val appsListAdapter = AppsListAdapter(onInstallItemClick = { packageName ->
             appsViewModel.handleOnClick(packageName) { msg ->
                 showSnackbar(msg)
             }
-        }
+        }, onChannelItemClick = { packageName, channel, callback ->
+            ChannelPreferenceManager.savePackageChannel(appsViewModel, packageName, channel)
+            appsViewModel.handleOnVariantChange(packageName, channel, callback)
+        }, onUninstallItemClick = { packageName ->
+            appsViewModel.uninstallPackage(packageName) { msg ->
+                showSnackbar(msg)
+            }
+        }, onAppInfoItemClick = { packageName ->
+            appsViewModel.openAppDetails(packageName)
+        })
+
         binding.appsRecyclerView.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = appsListAdapter
@@ -89,7 +99,7 @@ class MainScreen : Fragment() {
     private fun Map<String, PackageInfo>.toInstall() : List<InstallablePackageInfo>{
         val result = mutableListOf<InstallablePackageInfo>()
         val value = this
-        for (item in value){
+        for (item in value) {
             result.add(InstallablePackageInfo(item.key, item.value))
         }
         return result
