@@ -44,4 +44,10 @@ data class PackageInfo(
             downloadStatus, installStatus
         )
 
+    fun withUpdatedVariant(newVariant: PackageVariant): PackageInfo =
+        PackageInfo(
+            id, sessionInfo, newVariant, allVariant, taskInfo,
+            downloadStatus, installStatus
+        )
+
 }
