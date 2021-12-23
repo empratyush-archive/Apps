@@ -39,6 +39,7 @@ import org.grapheneos.apps.client.item.PackageVariant
 import org.grapheneos.apps.client.item.SessionInfo
 import org.grapheneos.apps.client.item.TaskInfo
 import org.grapheneos.apps.client.service.KeepAppActive
+import org.grapheneos.apps.client.ui.settings.MainSettings
 import org.grapheneos.apps.client.utils.PackageManagerHelper.Companion.pmHelper
 import org.grapheneos.apps.client.utils.network.ApkDownloadHelper
 import org.grapheneos.apps.client.utils.network.MetaDataHelper
@@ -91,6 +92,8 @@ class App : Application() {
     private val scopeApkDownload by lazy { Dispatchers.IO }
     private val scopeMetadataRefresh by lazy { Dispatchers.IO }
     private lateinit var refreshJob: CompletableJob
+    private lateinit var autoDownloadJob: CompletableJob
+    private val isAutoDownloadEnabled by lazy { MainSettings.getAutoDownload(this) }
     private var taskIdSeed = Random(SystemClock.currentThreadTimeMillis().toInt()).nextInt(1, 1000)
     private val appsChangesReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -249,7 +252,11 @@ class App : Application() {
             val taskCompleted = TaskInfo(taskId, "", DOWNLOAD_TASK_FINISHED)
             var taskSuccess = false
             var errorMsg = ""
-            CoroutineScope(scopeApkDownload).launch(Dispatchers.IO) {
+            val extendedScopeApkDownload = if (isAutoDownloadEnabled) {
+                autoDownloadJob = Job()
+                scopeApkDownload + autoDownloadJob
+            } else scopeApkDownload
+            CoroutineScope(extendedScopeApkDownload).launch(Dispatchers.IO) {
                 try {
                     val apks = apkDownloadHelper.downloadNdVerifySHA256(variant = variant)
                     { read: Long, total: Long, doneInPercent: Double, taskCompleted: Boolean ->
@@ -300,6 +307,7 @@ class App : Application() {
                                 .withUpdatedTask(taskCompleted)
                     }
                     updateLiveData()
+                    if (isAutoDownloadEnabled) autoDownloadJob.complete()
                 }
             }
         }
@@ -330,6 +338,21 @@ class App : Application() {
             conformationAwaitedPackages[pkgName] = apks
         }
 
+    }
+
+    fun maybeAutoDownload(callback: (result: String) -> Unit) {
+        if (this::autoDownloadJob.isInitialized && autoDownloadJob.isActive
+            && !autoDownloadJob.isCompleted && !autoDownloadJob.isCancelled) {
+            return
+        }
+        packagesInfo.keys.forEach { pkgName ->
+            val status = packagesInfo[pkgName]?.installStatus
+            val variant = packagesInfo[pkgName]?.selectedVariant
+            if (status !is InstallStatus.Updatable || variant == null) {
+                return@forEach
+            }
+            handleOnClick(pkgName, callback)
+        }
     }
 
     fun handleOnClick(
