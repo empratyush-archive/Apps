@@ -15,10 +15,16 @@
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/appName"
             style="@style/TextAppearance.Material3.HeadlineMedium"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="24dp"
             android:layout_marginTop="24dp"
+            android:layout_marginEnd="24dp"
+            android:autoSizeTextType="uniform"
+            app:autoSizeMaxTextSize="28dp"
+            android:maxLines="1"
+            app:autoSizeMinTextSize="12dp"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="Graphene app store" />
@@ -84,14 +90,14 @@
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/downloadSizeInfo"
-            android:layout_width="wrap_content"
             style="@style/TextAppearance.Material3.TitleSmall"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="24dp"
             android:layout_marginBottom="24dp"
-            tools:text="2.3 MB out of 109.0 MB 74%"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            tools:text="2.3 MB out of 109.0 MB 74%" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/install"
