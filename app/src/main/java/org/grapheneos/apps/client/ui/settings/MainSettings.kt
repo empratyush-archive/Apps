@@ -21,9 +21,9 @@ class MainSettings: PreferenceFragmentCompat() {
         setPreferencesFromResource(R.xml.settings, rootKey)
 
         val autoDownloadPreference =
-            preferenceManager.findPreference<SwitchPreferenceCompat>(KEY_AUTODOWNLOAD)
+            preferenceManager.findPreference<SwitchPreferenceCompat>(KEY_AUTO_DOWNLOAD)
         val autoUpdatePreference =
-            preferenceManager.findPreference<SwitchPreferenceCompat>(KEY_AUTOUPDATE)
+            preferenceManager.findPreference<SwitchPreferenceCompat>(KEY_AUTO_UPDATE)
 
         val booleanChangeListener =
             Preference.OnPreferenceChangeListener { preference: Preference?, newValue: Any ->
@@ -32,11 +32,11 @@ class MainSettings: PreferenceFragmentCompat() {
                 }
                 val value: Boolean = newValue as Boolean
                 when (preference.key) {
-                    KEY_AUTOUPDATE -> {
+                    KEY_AUTO_UPDATE -> {
                         getPreferences(requireContext()).edit()
                             .putBoolean(preference.key, value).apply()
                     }
-                    KEY_AUTODOWNLOAD -> {
+                    KEY_AUTO_DOWNLOAD -> {
                         if (value) {
                             autoUpdatePreference?.isChecked = value
                         }
@@ -70,8 +70,8 @@ class MainSettings: PreferenceFragmentCompat() {
     }
 
     companion object {
-        private const val KEY_AUTOUPDATE = "autoupdate"
-        private const val KEY_AUTODOWNLOAD = "autodownload"
+        private const val KEY_AUTO_UPDATE = "autoUpdate"
+        private const val KEY_AUTO_DOWNLOAD = "autoDownload"
 
         private fun getPreferences(context: Context): SharedPreferences {
             val appContext = context.applicationContext
@@ -80,12 +80,12 @@ class MainSettings: PreferenceFragmentCompat() {
 
         fun getAutoDownload(context: Context): Boolean {
             val defaultAutoDownload = (context.getString(R.string.autodownload_default)).toBoolean()
-            return getPreferences(context).getBoolean(KEY_AUTODOWNLOAD, defaultAutoDownload)
+            return getPreferences(context).getBoolean(KEY_AUTO_DOWNLOAD, defaultAutoDownload)
         }
 
         fun getAutoUpdate(context: Context): Boolean {
             val defaultAutoUpdate = (context.getString(R.string.autoupdate_default)).toBoolean()
-            return getPreferences(context).getBoolean(KEY_AUTOUPDATE, defaultAutoUpdate)
+            return getPreferences(context).getBoolean(KEY_AUTO_UPDATE, defaultAutoUpdate)
         }
     }
 }
