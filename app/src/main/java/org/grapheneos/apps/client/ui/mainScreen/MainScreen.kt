@@ -67,6 +67,15 @@ class MainScreen : Fragment() {
                 changeDuration = 0
             }
         }
+        binding.toolbar.setOnMenuItemClickListener {
+            when (it.itemId) {
+                R.id.settings_menu -> {
+                    findNavController().navigate(R.id.action_to_settings)
+                    true
+                }
+                else -> false
+            }
+        }
 
         ViewCompat.setOnApplyWindowInsetsListener(
             binding.toolbar
@@ -132,15 +141,6 @@ class MainScreen : Fragment() {
             binding.syncing.isVisible = isSyncing
             binding.appsRecyclerView.isVisible = !isSyncing
             binding.retrySync.isVisible = !isSyncing && canRetry
-            binding.toolbar.setOnMenuItemClickListener {
-                when (it.itemId) {
-                    R.id.settings_menu -> {
-                        findNavController().navigate(R.id.action_to_settings)
-                        true
-                    }
-                    else -> false
-                }
-            }
         }
     }
 
