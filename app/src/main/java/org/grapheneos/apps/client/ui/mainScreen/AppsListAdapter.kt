@@ -54,7 +54,7 @@ class AppsListAdapter(
                     install.isEnabled = !downloadStatus.isDownloading
                     downloadSizeInfo.isGone = !downloadStatus.isDownloading
                     downloadProgress.isInvisible = !downloadStatus.isDownloading
-                    appInfoGroup.isGone = true
+                    appInfoGroup.isInvisible = true
                     channel.isEnabled = false
 
                     if (downloadStatus is DownloadStatus.Downloading) {
@@ -80,7 +80,6 @@ class AppsListAdapter(
                         downloadProgress.isIndeterminate = true
                         downloadSizeInfo.isGone = true
                         install.isEnabled = false
-                        appInfoGroup.isGone = true
                         channel.isEnabled = false
                     } else {
                         install.isEnabled = true
@@ -142,9 +141,13 @@ class AppsListAdapter(
                 appName.text = updatedPackageInfo.selectedVariant.appName
                 latestVersion.text = installStatus.latestV
                 installedVersion.text = installStatus.installedV
-                appInfoGroup.isGone = installStatus.installedV == "N/A"
                 channel.text = packageVariant.type
                 install.text = installStatus.status
+                appInfoGroup.isInvisible = installStatus.installedV == "N/A"
+                if (installedVersion.text == "N/A"
+                    && install.text in listOf("install", "failed")) {
+                    appInfoGroup.isGone = true
+                }
             }
         }
     }
