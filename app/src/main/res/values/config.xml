@@ -2,4 +2,5 @@
 <resources>
     <string name="autodownload_default" translatable="false">false</string>
     <string name="autoupdate_default" translatable="false">true</string>
+    <string name="channel_default" translatable="false">stable</string>
 </resources>

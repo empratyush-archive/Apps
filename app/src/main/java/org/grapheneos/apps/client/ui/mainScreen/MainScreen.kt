@@ -4,7 +4,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.*
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.isVisible
+import androidx.core.view.isGone
+import androidx.core.view.updateLayoutParams
+import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DefaultItemAnimator
@@ -41,16 +46,35 @@ class MainScreen : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val appsListAdapter = AppsListAdapter { packageName ->
+        val appsListAdapter = AppsListAdapter(onInstallItemClick = { packageName ->
             appsViewModel.handleOnClick(packageName) { msg ->
                 showSnackbar(msg)
             }
-        }
+        }, onChannelItemClick = { packageName, channel, callback ->
+            ChannelPreferenceManager.savePackageChannel(appsViewModel, packageName, channel)
+            appsViewModel.handleOnVariantChange(packageName, channel, callback)
+        }, onUninstallItemClick = { packageName ->
+            appsViewModel.uninstallPackage(packageName) { msg ->
+                showSnackbar(msg)
+            }
+        }, onAppInfoItemClick = { packageName ->
+            appsViewModel.openAppDetails(packageName)
+        })
+
         binding.appsRecyclerView.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = appsListAdapter
             itemAnimator = DefaultItemAnimator().apply {
                 changeDuration = 0
+            }
+        }
+        binding.toolbar.setOnMenuItemClickListener {
+            when (it.itemId) {
+                R.id.settings_menu -> {
+                    findNavController().navigate(R.id.action_to_settings)
+                    true
+                }
+                else -> false
             }
         }
 
@@ -86,10 +110,10 @@ class MainScreen : Fragment() {
         refresh()
     }
 
-    private fun Map<String, PackageInfo>.toInstall() : List<InstallablePackageInfo>{
+    private fun Map<String, PackageInfo>.toInstall(): List<InstallablePackageInfo> {
         val result = mutableListOf<InstallablePackageInfo>()
         val value = this
-        for (item in value){
+        for (item in value) {
             result.add(InstallablePackageInfo(item.key, item.value))
         }
         return result
@@ -116,17 +140,8 @@ class MainScreen : Fragment() {
         runOnUiThread {
             binding.toolbar.isVisible = !isSyncing
             binding.syncing.isVisible = isSyncing
-            binding.appsRecyclerView.isVisible = !isSyncing
+            binding.appsRecyclerView.isGone = isSyncing || canRetry
             binding.retrySync.isVisible = !isSyncing && canRetry
-            binding.toolbar.setOnMenuItemClickListener {
-                when (it.itemId) {
-                    R.id.settings_menu -> {
-                        findNavController().navigate(R.id.action_to_settings)
-                        true
-                    }
-                    else -> false
-                }
-            }
         }
     }
 

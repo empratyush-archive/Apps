@@ -4,13 +4,13 @@
         app:allowDividerAbove="false"
         app:allowDividerBelow="true">
 
-        <SwitchPreferenceCompat app:key="autodownload"
+        <SwitchPreferenceCompat app:key="autoDownload"
             app:title="@string/autodownload_title"
             app:summaryOn="@string/autodownload_summary_on"
             app:summaryOff="@string/autodownload_summary_off"
             app:defaultValue="@string/autodownload_default" />
 
-        <SwitchPreferenceCompat app:key="autoupdate"
+        <SwitchPreferenceCompat app:key="autoUpdate"
             app:title="@string/autoupdate_title"
             app:summaryOn="@string/autoupdate_summary_on"
             app:summaryOff="@string/autoupdate_summary_off"
