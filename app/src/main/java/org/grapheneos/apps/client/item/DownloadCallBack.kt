@@ -8,6 +8,13 @@ sealed class DownloadCallBack(
     open val genericMsg: String,
     val error: Exception?
 ) {
+
+    companion object {
+        fun DownloadCallBack.toUiMsg(): String {
+            return if (isSuccessFull) genericMsg else genericMsg + error?.localizedMessage
+        }
+    }
+
     data class Success(
         override val genericMsg: String = App.getString(R.string.DownloadedSuccessfully)
     ) : DownloadCallBack(
@@ -19,7 +26,7 @@ sealed class DownloadCallBack(
     data class IoError(val e: Exception) : DownloadCallBack(
         false,
         App.getString(R.string.dfIoError),
-        null
+        e
     )
 
     data class SecurityError(val e: Exception) : DownloadCallBack(
