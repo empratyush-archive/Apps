@@ -30,6 +30,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.bouncycastle.util.encoders.DecoderException
 import org.grapheneos.apps.client.item.DownloadCallBack
+import org.grapheneos.apps.client.item.DownloadCallBack.Companion.toUiMsg
 import org.grapheneos.apps.client.item.DownloadStatus
 import org.grapheneos.apps.client.item.InstallStatus
 import org.grapheneos.apps.client.item.InstallStatus.Companion.createFailed
@@ -41,6 +42,7 @@ import org.grapheneos.apps.client.item.TaskInfo
 import org.grapheneos.apps.client.service.KeepAppActive
 import org.grapheneos.apps.client.ui.settings.MainSettings
 import org.grapheneos.apps.client.ui.mainScreen.ChannelPreferenceManager
+import org.grapheneos.apps.client.utils.ActivityLifeCycleHelper
 import org.grapheneos.apps.client.utils.PackageManagerHelper.Companion.pmHelper
 import org.grapheneos.apps.client.utils.network.ApkDownloadHelper
 import org.grapheneos.apps.client.utils.network.MetaDataHelper
@@ -161,7 +163,7 @@ class App : Application() {
     fun refreshMetadata(force: Boolean = false, callback: (error: MetadataCallBack) -> Unit) {
         if ((packagesInfo.isNotEmpty() && !force) ||
             (this::refreshJob.isInitialized && refreshJob.isActive
-            && !refreshJob.isCompleted && !refreshJob.isCancelled)
+                    && !refreshJob.isCompleted && !refreshJob.isCancelled)
         ) {
             return
         }
@@ -180,7 +182,7 @@ class App : Application() {
                         } else {
                             ChannelPreferenceManager.savePackageChannel(this@App, pkgName)
                             value.variants[getString(R.string.channel_default)]!!
-                                                 }
+                        }
                         val installStatus = getInstalledStatus(
                             pkgName,
                             channelVariant.versionCode.toLong()
@@ -349,9 +351,42 @@ class App : Application() {
 
     }
 
+    fun openAppDetails(pkgName: String) {
+        isActivityRunning?.startActivity(
+            Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                .setData(Uri.parse(String.format("package:%s", pkgName)))
+                .addCategory(Intent.CATEGORY_DEFAULT), null
+        )
+    }
+
+    fun uninstallPackage(pkgName: String, callback: (result: String) -> Unit) {
+        callback.invoke("${getString(R.string.uninstalling)} $pkgName")
+        pmHelper().uninstall(pkgName)
+    }
+
+    fun handleOnVariantChange(
+        packageName: String,
+        channel: String,
+        callback: (info: PackageInfo) -> Unit
+    ) {
+        val infoToCheck = packagesInfo[packageName] ?: return
+        val channelVariants = infoToCheck.allVariant
+        var channelVariant: PackageVariant = infoToCheck.selectedVariant
+        channelVariants.forEach { packageVariant ->
+            if (packageVariant.type == channel) {
+                channelVariant = packageVariant
+            }
+        }
+        val installStatus = getInstalledStatus(packageName, channelVariant.versionCode.toLong())
+        packagesInfo[packageName] = infoToCheck.withUpdatedVariant(channelVariant)
+            .withUpdatedInstallStatus(installStatus)
+        callback.invoke(packagesInfo[packageName]!!)
+    }
+
     fun maybeAutoDownload(callback: (result: String) -> Unit) {
         if (this::autoDownloadJob.isInitialized && autoDownloadJob.isActive
-            && !autoDownloadJob.isCompleted && !autoDownloadJob.isCancelled) {
+            && !autoDownloadJob.isCompleted && !autoDownloadJob.isCancelled
+        ) {
             return
         }
         packagesInfo.keys.forEach { pkgName ->
@@ -408,14 +443,17 @@ class App : Application() {
                 }
                 is InstallStatus.Updatable -> {
                     callback.invoke("${getString(R.string.updating)} $pkgName")
-                    downloadPackages(variant, true) { error -> callback.invoke(error.genericMsg) }
+                    downloadPackages(variant, true)
+                    { error -> callback.invoke(error.toUiMsg()) }
                 }
                 is InstallStatus.ReinstallRequired -> {
-                    downloadPackages(variant, true) { error -> callback.invoke(error.genericMsg) }
+                    downloadPackages(variant, true)
+                    { error -> callback.invoke(error.toUiMsg()) }
                 }
                 is InstallStatus.Failed -> {
                     callback.invoke(getString(R.string.reinstalling))
-                    downloadPackages(variant, true) { error -> callback.invoke(error.genericMsg) }
+                    downloadPackages(variant, true)
+                    { error -> callback.invoke(error.toUiMsg()) }
                 }
             }
         }
@@ -440,7 +478,12 @@ class App : Application() {
             }
 
             if (foregroundServiceNeeded) {
-                startService(Intent(this@App, KeepAppActive::class.java))
+                startService(
+                    Intent(
+                        this@App,
+                        KeepAppActive::class.java
+                    )
+                )
             }
         }
     }
@@ -452,56 +495,25 @@ class App : Application() {
         createNotificationChannel()
 
         val appsChangesFilter = IntentFilter()
-        appsChangesFilter.addAction(Intent.ACTION_PACKAGE_ADDED) //installed
-        appsChangesFilter.addAction(Intent.ACTION_PACKAGE_REPLACED) // updated (i.e : v1 to v1.1)
-        appsChangesFilter.addAction(Intent.ACTION_PACKAGE_FULLY_REMOVED) //uninstall finished
-        appsChangesFilter.addAction(Intent.ACTION_PACKAGE_REMOVED) //uninstall started
+        appsChangesFilter.addAction(Intent.ACTION_PACKAGE_ADDED)
+        appsChangesFilter.addAction(Intent.ACTION_PACKAGE_REPLACED)
+        appsChangesFilter.addAction(Intent.ACTION_PACKAGE_FULLY_REMOVED)
+        appsChangesFilter.addAction(Intent.ACTION_PACKAGE_REMOVED)
         appsChangesFilter.addDataScheme("package")
 
-        registerReceiver(
-            appsChangesReceiver,
-            appsChangesFilter
-        )
+        registerReceiver(appsChangesReceiver, appsChangesFilter)
 
-        registerActivityLifecycleCallbacks(object : ActivityLifecycleCallbacks {
-            override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
-                //nothing to do here
-            }
-
-            override fun onActivityStarted(activity: Activity) {
-                //nothing to do here
-            }
-
-            override fun onActivityResumed(activity: Activity) {
-                isActivityRunning = activity
+        registerActivityLifecycleCallbacks(ActivityLifeCycleHelper { activity ->
+            isActivityRunning = activity
+            if (isActivityRunning != null) {
                 conformationAwaitedPackages.forEach { (packageName, apks) ->
                     requestInstall(apks, packageName)
                 }
-            }
-
-            override fun onActivityPaused(activity: Activity) {
-                isActivityRunning = null
-            }
-
-            override fun onActivityStopped(activity: Activity) {
-                //nothing to do here
-            }
-
-            override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {
-                //nothing to do here
-            }
-
-            override fun onActivityDestroyed(activity: Activity) {
-                //nothing to do here
             }
         })
 
         context = WeakReference(this)
         packageLiveData.observeForever(observer)
-
-        /*if(packagesInfo.isEmpty()){
-            refreshMetadata {  }
-        }*/
     }
 
     private fun createNotificationChannel() {
