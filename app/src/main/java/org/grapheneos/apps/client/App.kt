@@ -4,14 +4,16 @@ import android.Manifest
 import android.app.Activity
 import android.app.Application
 import android.app.NotificationManager
+import android.app.job.JobInfo
+import android.app.job.JobScheduler
 import android.content.BroadcastReceiver
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.SystemClock
-import android.os.Bundle
 import android.provider.Settings
 import android.widget.Toast
 import androidx.annotation.RequiresPermission
@@ -40,12 +42,14 @@ import org.grapheneos.apps.client.item.PackageVariant
 import org.grapheneos.apps.client.item.SessionInfo
 import org.grapheneos.apps.client.item.TaskInfo
 import org.grapheneos.apps.client.service.KeepAppActive
-import org.grapheneos.apps.client.ui.settings.MainSettings
+import org.grapheneos.apps.client.service.SeamlessUpdaterJob
 import org.grapheneos.apps.client.ui.mainScreen.ChannelPreferenceManager
+import org.grapheneos.apps.client.ui.settings.MainSettings
 import org.grapheneos.apps.client.utils.ActivityLifeCycleHelper
 import org.grapheneos.apps.client.utils.PackageManagerHelper.Companion.pmHelper
 import org.grapheneos.apps.client.utils.network.ApkDownloadHelper
 import org.grapheneos.apps.client.utils.network.MetaDataHelper
+import org.grapheneos.apps.client.utils.sharedPsfsMgr.JobPsfsMgr
 import org.json.JSONException
 import java.io.File
 import java.io.IOException
@@ -64,6 +68,8 @@ class App : Application() {
         const val BACKGROUND_SERVICE_CHANNEL = "backgroundTask"
         const val DOWNLOAD_TASK_FINISHED = 1000
         private lateinit var context: WeakReference<Context>
+
+        private const val SEAMLESS_UPDATER_JOB_ID = 1000
 
         fun getString(@StringRes id: Int): String {
             return context.get()!!.getString(id)
@@ -90,6 +96,10 @@ class App : Application() {
     private val packagesInfo: MutableMap<String, PackageInfo> = mutableMapOf()
     private val packagesMutableLiveData = MutableLiveData<Map<String, PackageInfo>>()
     val packageLiveData: LiveData<Map<String, PackageInfo>> = packagesMutableLiveData
+
+    private val jobPsfsMgr by lazy {
+        JobPsfsMgr(this)
+    }
 
     /*Coroutine scope and jobs var*/
     private val scopeApkDownload by lazy { Dispatchers.IO }
@@ -459,13 +469,38 @@ class App : Application() {
         }
     }
 
+    fun seamlesslyUpdateApps(onFinished: (isSuccess: Boolean) -> Unit) {
+
+    }
+
+    private fun scheduleAutoUpdate() {
+
+        val jobInfo = JobInfo.Builder(
+            SEAMLESS_UPDATER_JOB_ID,
+            ComponentName(this, SeamlessUpdaterJob::class.java)
+        ).setRequiresCharging(true)
+            .setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED)
+            .setPersisted(true)
+            .setPeriodic(6 * 60 * 60 * 1000)
+            .build()
+
+        val jobScheduler = getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
+        jobScheduler.schedule(jobInfo)
+
+    }
+
+    private fun cancelScheduleAutoUpdate() {
+        val jobScheduler = getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
+        jobScheduler.cancel(SEAMLESS_UPDATER_JOB_ID)
+    }
+
+
     override fun onTerminate() {
         super.onTerminate()
         unregisterReceiver(appsChangesReceiver)
         packageLiveData.removeObserver(observer)
         executor.shutdown()
     }
-
 
     private val observer = Observer<Map<String, PackageInfo>> { infos ->
         if (!isServiceRunning) {
@@ -514,6 +549,15 @@ class App : Application() {
 
         context = WeakReference(this)
         packageLiveData.observeForever(observer)
+
+        jobPsfsMgr.onPsfsChanged { isEnabled ->
+            if (isEnabled) {
+                scheduleAutoUpdate()
+            } else {
+                cancelScheduleAutoUpdate()
+            }
+        }
+
     }
 
     private fun createNotificationChannel() {
