@@ -51,7 +51,6 @@ class MainScreen : Fragment() {
                 showSnackbar(msg)
             }
         }, onChannelItemClick = { packageName, channel, callback ->
-            ChannelPreferenceManager.savePackageChannel(appsViewModel, packageName, channel)
             appsViewModel.handleOnVariantChange(packageName, channel, callback)
         }, onUninstallItemClick = { packageName ->
             appsViewModel.uninstallPackage(packageName) { msg ->

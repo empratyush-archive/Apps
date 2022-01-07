@@ -110,6 +110,7 @@ class AppsListAdapter(
                 listPopupWindow.setAdapter(adapter)
                 listPopupWindow.setOnItemClickListener { _, _, whichVariant: Int, _ ->
                     val chosenVariant = items[whichVariant]
+                    ChannelPreferenceManager.savePackageChannel(view.context, packageName, chosenVariant)
                     onChannelItemClick.invoke(packageName, chosenVariant) { packageInfo ->
                         rebind(position, packageInfo)
                     }
@@ -147,6 +148,11 @@ class AppsListAdapter(
                 if (installedVersion.text == "N/A"
                     && install.text in listOf("install", "failed")) {
                     appInfoGroup.isGone = true
+                }
+                if (packageVariant.type != ChannelPreferenceManager
+                        .getPackageChannel(binding.root.context, packageVariant.pkgName)) {
+                    ChannelPreferenceManager.savePackageChannel(binding.root.context,
+                        packageVariant.pkgName, packageVariant.type)
                 }
             }
         }

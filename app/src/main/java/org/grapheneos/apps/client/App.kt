@@ -187,12 +187,8 @@ class App : Application() {
                         val pkgName = value.packageName
                         val channelPref = ChannelPreferenceManager
                             .getPackageChannel(this@App, pkgName)
-                        val channelVariant = if (value.variants[channelPref] != null) {
-                            value.variants[channelPref]!!
-                        } else {
-                            ChannelPreferenceManager.savePackageChannel(this@App, pkgName)
-                            value.variants[getString(R.string.channel_default)]!!
-                        }
+                        val channelVariant = value.variants[channelPref]
+                            ?: value.variants[App.getString(R.string.channel_default)]!!
                         val installStatus = getInstalledStatus(
                             pkgName,
                             channelVariant.versionCode.toLong()
