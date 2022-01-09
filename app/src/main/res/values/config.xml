@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <bool name="auto_download_default" translatable="false">false</bool>
+    <bool name="auto_update_default" translatable="false">true</bool>
+    <string name="channel_default" translatable="false">stable</string>
+</resources>
