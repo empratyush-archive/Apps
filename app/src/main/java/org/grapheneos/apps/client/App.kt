@@ -521,6 +521,17 @@ class App : Application() {
         }
     }
 
+    fun downloadUpdatableAppsNow() {
+        packagesInfo.forEach { info ->
+            val installStatus = info.value.installStatus
+            val variant = info.value.selectedVariant
+
+            if (installStatus is InstallStatus.Updatable) {
+                handleOnClick(variant.pkgName) {}
+            }
+        }
+    }
+
     private fun scheduleAutoUpdate() {
 
         //TODO : make it user configurable via settings
