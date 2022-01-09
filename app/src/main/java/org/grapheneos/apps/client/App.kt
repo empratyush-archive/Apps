@@ -47,6 +47,7 @@ import org.grapheneos.apps.client.item.TaskInfo
 import org.grapheneos.apps.client.service.KeepAppActive
 import org.grapheneos.apps.client.service.SeamlessUpdaterJob
 import org.grapheneos.apps.client.ui.mainScreen.ChannelPreferenceManager
+import org.grapheneos.apps.client.ui.settings.MainSettings
 import org.grapheneos.apps.client.utils.ActivityLifeCycleHelper
 import org.grapheneos.apps.client.utils.PackageManagerHelper.Companion.pmHelper
 import org.grapheneos.apps.client.utils.network.ApkDownloadHelper
@@ -533,15 +534,14 @@ class App : Application() {
     }
 
     private fun scheduleAutoUpdate() {
-
-        //TODO : make it user configurable via settings
+        val interval = MainSettings.getAutoUpdateInterval(applicationContext)
         val jobInfo = JobInfo.Builder(
             SEAMLESS_UPDATER_JOB_ID,
             ComponentName(this, SeamlessUpdaterJob::class.java)
         ).setRequiresCharging(true)
             .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
             .setPersisted(true)
-            .setPeriodic(6 * 50 * 60 * 1000) //6 hour
+            .setPeriodic(interval) //6 hour
             .build()
 
         val jobScheduler = getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
