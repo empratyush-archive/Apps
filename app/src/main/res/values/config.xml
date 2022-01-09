@@ -3,4 +3,5 @@
     <bool name="auto_download_default" translatable="false">false</bool>
     <bool name="auto_update_default" translatable="false">true</bool>
     <string name="channel_default" translatable="false">stable</string>
+    <string name="auto_download_interval_default" translatable="false">21600000</string>
 </resources>

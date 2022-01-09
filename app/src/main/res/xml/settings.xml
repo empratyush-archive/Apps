@@ -8,9 +8,24 @@
         app:allowDividerBelow="true"
         app:title="@string/settings_header">
 
+        <Preference
+            app:key="@string/checkForUpdatesNow"
+            app:title="@string/check_for_app_updates_title"
+            app:summary="@string/check_for_app_updates_summary">
+        </Preference>
+
+        <ListPreference
+            app:key="@string/seamlessUpdateInterval"
+            app:title="@string/auto_update_interval_title"
+            app:summary="@string/auto_update_interval_summary"
+            android:entries="@array/auto_update_interval_entries"
+            android:entryValues="@array/auto_update_interval_values"
+            android:defaultValue="@string/auto_download_interval_default">
+        </ListPreference>
+
         <SwitchPreferenceCompat
-            app:defaultValue="@bool/auto_download_default"
             app:key="@string/seamlessDownloadEnabled"
+            app:defaultValue="@bool/auto_download_default"
             app:summaryOff="@string/auto_download_summary_off"
             app:summaryOn="@string/auto_download_summary_on"
             app:title="@string/auto_download_title" />

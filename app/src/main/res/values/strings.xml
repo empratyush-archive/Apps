@@ -74,4 +74,11 @@
     <string name="auto_update_summary_on">Automatically install app updates</string>
     <string name="auto_update_summary_off">Only install app updates when manually requested</string>
 
+    <string name="check_for_app_updates_title">Check for app updates</string>
+    <string name="check_for_app_updates_summary">Tap to check for app updates as soon as possible</string>
+
+    <!-- Auto update interval Preferences -->
+    <string name="auto_update_interval_title">App update checking interval</string>
+    <string name="auto_update_interval_summary">Check for app updates for set amount of time</string>
+
 </resources>

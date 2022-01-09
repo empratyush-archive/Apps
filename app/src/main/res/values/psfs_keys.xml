@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="autoUpdatePreferenceKey" translatable="false">seamlessUpdate</string>
+    <string name="checkForUpdatesNow" translatable="false">checkForUpdatesNow</string>
+    <string name="seamlessUpdateInterval" translatable="false">seamlessUpdateInterval</string>
     <string name="seamlessUpdateEnabled" translatable="false">seamlessUpdateEnabled</string>
     <string name="seamlessDownloadEnabled" translatable="false">seamlessDownloadEnabled</string>
 </resources>
