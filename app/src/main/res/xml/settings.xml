@@ -3,6 +3,12 @@
     android:key="@string/autoUpdatePreferenceKey"
     app:key="@string/autoUpdatePreferenceKey">
 
+    <Preference
+        app:key="@string/checkForUpdatesNow"
+        app:title="@string/check_for_app_updates_title"
+        app:summary="@string/check_for_app_updates_summary">
+    </Preference>
+
     <PreferenceCategory
         app:allowDividerAbove="false"
         app:allowDividerBelow="true"

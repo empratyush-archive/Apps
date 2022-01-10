@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="autoUpdatePreferenceKey" translatable="false">seamlessUpdate</string>
+    <string name="checkForUpdatesNow" translatable="false">checkForUpdatesNow</string>
     <string name="seamlessUpdateEnabled" translatable="false">seamlessUpdateEnabled</string>
     <string name="seamlessDownloadEnabled" translatable="false">seamlessDownloadEnabled</string>
     <string name="rescheduleTiming" translatable="false">rescheduleTiming</string>

@@ -80,4 +80,7 @@
     <string name="auto_update_duration_title">Auto update Duration</string>
     <string name="auto_update_duration_summary">Check for available updates after selected number of hours</string>
 
+    <string name="check_for_app_updates_title">Check for app updates</string>
+    <string name="check_for_app_updates_summary">Tap to check for app updates as soon as possible</string>
+
 </resources>

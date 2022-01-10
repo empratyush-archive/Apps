@@ -365,6 +365,17 @@ class App : Application() {
         }
     }
 
+    fun downloadUpdatableAppsNow() {
+        packagesInfo.forEach { info ->
+            val installStatus = info.value.installStatus
+            val variant = info.value.selectedVariant
+
+            if (installStatus is InstallStatus.Updatable) {
+                handleOnClick(variant.pkgName) {}
+            }
+        }
+    }
+
     fun openAppDetails(pkgName: String) {
         isActivityRunning?.startActivity(
             Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
