@@ -105,7 +105,7 @@ class MainScreen : Fragment() {
             }
         }
 
-        binding.retrySync.setOnClickListener { refresh() }
+        binding.retrySync.setOnClickListener { refresh(true) }
         refresh()
     }
 
@@ -122,9 +122,9 @@ class MainScreen : Fragment() {
         activity?.runOnUiThread(action)
     }
 
-    private fun refresh() {
+    private fun refresh(force: Boolean = false) {
         updateUi(isSyncing = true, canRetry = false)
-        appsViewModel.refreshMetadata {
+        appsViewModel.refreshMetadata(force) {
             updateUi(isSyncing = false, canRetry = !it.isSuccessFull)
             showSnackbar(
                 it.genericMsg + if (it.error != null) it.error.localizedMessage else "",
