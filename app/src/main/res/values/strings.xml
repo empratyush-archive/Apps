@@ -60,6 +60,8 @@
 
     <!--main_menu.xml-->
     <string name="settings">settings</string>
+    <string name="update_all_apps">Update all apps</string>
+    <string name="install_google_services">(Re)install G-services apps</string>
 
     <!-- Preference Titles -->
     <string name="settings_header">Settings</string>

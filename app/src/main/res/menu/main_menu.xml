@@ -8,4 +8,14 @@
         android:title="@string/settings"
         app:showAsAction="ifRoom" />
 
+    <item
+        android:id="@+id/update_all_menu"
+        android:title="@string/update_all_apps"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/install_all_gapps_menu"
+        android:title="@string/install_google_services"
+        app:showAsAction="never"/>
+
 </menu>

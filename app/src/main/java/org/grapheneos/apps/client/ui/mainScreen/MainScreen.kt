@@ -47,7 +47,7 @@ class MainScreen : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val appsListAdapter = AppsListAdapter(onInstallItemClick = { packageName ->
-            appsViewModel.handleOnClick(packageName) { msg ->
+            appsViewModel.handleOnClick(pkgName = packageName) { msg ->
                 showSnackbar(msg)
             }
         }, onChannelItemClick = { packageName, channel, callback ->
@@ -71,6 +71,14 @@ class MainScreen : Fragment() {
             when (it.itemId) {
                 R.id.settings_menu -> {
                     findNavController().navigate(R.id.action_to_settings)
+                    true
+                }
+                R.id.update_all_menu -> {
+                    appsViewModel.updateAllUpdatableApps { msg -> showSnackbar(msg) }
+                    true
+                }
+                R.id.install_all_gapps_menu -> {
+                    appsViewModel.forceInstallGoogleApps { msg -> showSnackbar(msg) }
                     true
                 }
                 else -> false
