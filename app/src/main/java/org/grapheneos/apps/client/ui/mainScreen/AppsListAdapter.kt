@@ -1,5 +1,6 @@
 package org.grapheneos.apps.client.ui.mainScreen
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
@@ -15,6 +16,7 @@ import org.grapheneos.apps.client.item.InstallStatus
 import org.grapheneos.apps.client.item.PackageInfo
 import org.grapheneos.apps.client.item.PackageVariant
 import org.grapheneos.apps.client.uiItem.InstallablePackageInfo
+import org.grapheneos.apps.client.utils.sharedPsfsMgr.ChannelPreferenceHelper
 import kotlin.math.roundToInt
 
 class AppsListAdapter(
@@ -116,7 +118,7 @@ class AppsListAdapter(
                 listPopupWindow.setAdapter(adapter)
                 listPopupWindow.setOnItemClickListener { _, _, whichVariant: Int, _ ->
                     val chosenVariant = items[whichVariant]
-                    ChannelPreferenceManager.savePackageChannel(
+                    savePackageChannel(
                         view.context,
                         packageName,
                         chosenVariant
@@ -160,15 +162,21 @@ class AppsListAdapter(
                 ) {
                     appInfoGroup.isGone = true
                 }
-                if (packageVariant.type != ChannelPreferenceManager
+                if (packageVariant.type != ChannelPreferenceHelper
                         .getPackageChannel(binding.root.context, packageVariant.pkgName)
                 ) {
-                    ChannelPreferenceManager.savePackageChannel(
+                    savePackageChannel(
                         binding.root.context,
                         packageVariant.pkgName, packageVariant.type
                     )
                 }
             }
+        }
+
+        private fun savePackageChannel(context: Context, pkgName: String,
+                                       variant: String = ChannelPreferenceHelper.defaultChannel) {
+            context.applicationContext.getSharedPreferences("app_channel", Context.MODE_PRIVATE)
+                .edit().putString(pkgName, variant).apply()
         }
     }
 

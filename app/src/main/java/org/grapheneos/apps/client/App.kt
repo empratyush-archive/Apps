@@ -47,7 +47,7 @@ import org.grapheneos.apps.client.item.SessionInfo
 import org.grapheneos.apps.client.item.TaskInfo
 import org.grapheneos.apps.client.service.KeepAppActive
 import org.grapheneos.apps.client.service.SeamlessUpdaterJob
-import org.grapheneos.apps.client.ui.mainScreen.ChannelPreferenceManager
+import org.grapheneos.apps.client.utils.sharedPsfsMgr.ChannelPreferenceHelper
 import org.grapheneos.apps.client.utils.ActivityLifeCycleHelper
 import org.grapheneos.apps.client.utils.PackageManagerHelper.Companion.pmHelper
 import org.grapheneos.apps.client.utils.network.ApkDownloadHelper
@@ -196,7 +196,7 @@ class App : Application() {
                 response.packages.forEach {
                     val value = it.value
                     val pkgName = value.packageName
-                    val channelPref = ChannelPreferenceManager
+                    val channelPref = ChannelPreferenceHelper
                         .getPackageChannel(this@App, pkgName)
                     val channelVariant = value.variants[channelPref]
                         ?: value.variants[App.getString(R.string.channel_default)]!!
