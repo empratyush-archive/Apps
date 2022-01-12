@@ -10,6 +10,7 @@ class JobPsfsMgr(val context: Context) {
 
     companion object {
         val AUTO_UPDATE_PREFERENCE = App.getString(R.string.autoUpdatePreferenceKey)
+        val AUTO_DOWNLOAD_KEY = App.getString(R.string.seamlessDownloadEnabled)
         val AUTO_UPDATE_KEY = App.getString(R.string.seamlessUpdateEnabled)
         val NETWORK_TYPE_KEY = App.getString(R.string.networkType)
         val RESCHEDULE_TIME_KEY = App.getString(R.string.rescheduleTiming)
@@ -20,6 +21,11 @@ class JobPsfsMgr(val context: Context) {
     private fun isAutoUpdateEnabled() = sharedPsfs.getBoolean(
         AUTO_UPDATE_KEY,
         context.resources.getBoolean(R.bool.auto_update_default)
+    )
+
+    private fun isAutoDownloadUpdatesEnabled() = sharedPsfs.getBoolean(
+        AUTO_DOWNLOAD_KEY,
+        context.resources.getBoolean(R.bool.auto_download_default)
     )
 
     private fun jobNetworkType(): Int {
@@ -54,14 +60,14 @@ class JobPsfsMgr(val context: Context) {
 
     fun onJobPsfsChanged(listener: (isEnabled: Boolean, networkType: Int, rescheduleTimingInMilli: Long) -> Unit) {
         listener.invoke(
-            isAutoUpdateEnabled(),
+            isAutoDownloadUpdatesEnabled(),
             jobNetworkType(),
             rescheduleTimingInMilli()
         )
         sharedPsfs.registerOnSharedPreferenceChangeListener { _, key ->
-            if (key == AUTO_UPDATE_KEY || key == NETWORK_TYPE_KEY || key == RESCHEDULE_TIME_KEY) {
+            if (key == AUTO_DOWNLOAD_KEY || key == NETWORK_TYPE_KEY || key == RESCHEDULE_TIME_KEY) {
                 listener.invoke(
-                    isAutoUpdateEnabled(),
+                    isAutoDownloadUpdatesEnabled(),
                     jobNetworkType(),
                     rescheduleTimingInMilli()
                 )
