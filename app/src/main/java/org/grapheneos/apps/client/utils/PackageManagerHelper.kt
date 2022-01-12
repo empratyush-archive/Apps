@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageInstaller
 import android.content.pm.PackageInstaller.SessionParams
+import org.grapheneos.apps.client.utils.sharedPsfsMgr.JobPsfsMgr
 import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
@@ -42,7 +43,9 @@ class PackageManagerHelper(private val context: Context) {
         }
         val sessionParams = SessionParams(SessionParams.MODE_FULL_INSTALL)
         sessionParams.setSize(totalSize)
-        sessionParams.setRequireUserAction(SessionParams.USER_ACTION_NOT_REQUIRED)
+        if (JobPsfsMgr(context).isAutoInstallUpdatesEnabled()) {
+            sessionParams.setRequireUserAction(SessionParams.USER_ACTION_NOT_REQUIRED)
+        }
         try {
             val sessionId = packageInstaller.createSession(sessionParams)
             val session = packageInstaller.openSession(sessionId)
