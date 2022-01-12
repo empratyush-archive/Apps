@@ -18,7 +18,7 @@ class JobPsfsMgr(val context: Context) {
 
     private val sharedPsfs = context.getSharedPreferences(AUTO_UPDATE_PREFERENCE, MODE_PRIVATE)
 
-    private fun isAutoUpdateEnabled() = sharedPsfs.getBoolean(
+    fun isAutoInstallUpdatesEnabled() = sharedPsfs.getBoolean(
         AUTO_UPDATE_KEY,
         context.resources.getBoolean(R.bool.auto_update_default)
     )
