@@ -79,7 +79,8 @@ class AppsListAdapter(
             } else {
                 binding.apply {
                     install.text = installStatus.status
-                    if (installStatus is InstallStatus.Installing || installStatus is InstallStatus.Uninstalling) {
+                    if (installStatus is InstallStatus.Installing || installStatus is InstallStatus.Uninstalling
+                        || installStatus is InstallStatus.Pending) {
                         downloadProgress.isInvisible = false
                         downloadProgress.isIndeterminate = true
                         downloadSizeInfo.isGone = true
