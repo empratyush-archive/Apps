@@ -133,9 +133,11 @@ class MainScreen : Fragment() {
     }
 
     private fun showSnackbar(msg: String, isError: Boolean? = null) {
+        val context = activity ?: return
+        val view = context.findViewById<View>(android.R.id.content)
         val snackbar = Snackbar.make(
             DynamicColors.wrapContextIfAvailable(requireContext()),
-            binding.root,
+            view,
             msg,
             Snackbar.LENGTH_SHORT
         )
