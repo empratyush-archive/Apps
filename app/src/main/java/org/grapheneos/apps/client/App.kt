@@ -76,7 +76,7 @@ class App : Application() {
         const val SEAMLESS_UPDATE_FAILED_CHANNEL = "seamlessUpdateFailed"
         const val SEAMLESSLY_UPDATED_CHANNEL = "seamlesslyUpdated"
         const val ALREADY_UP_TO_DATE_CHANNEL = "alreadyUpToDate"
-        const val SEAMLESS_UPDATE_INPUT_REQUIRED_CHANNEL = "seamlessUpdateInputConformation"
+        const val SEAMLESS_UPDATE_INPUT_REQUIRED_CHANNEL = "seamlessUpdateInputConfirmation"
 
         const val SEAMLESS_UPDATE_GROUP = "seamlessUpdateGroup"
 
