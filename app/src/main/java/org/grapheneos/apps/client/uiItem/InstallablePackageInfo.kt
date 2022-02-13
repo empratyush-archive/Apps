@@ -1,6 +1,7 @@
 package org.grapheneos.apps.client.uiItem
 
 import androidx.recyclerview.widget.DiffUtil
+import org.grapheneos.apps.client.item.InstallStatus
 import org.grapheneos.apps.client.item.PackageInfo
 
 data class InstallablePackageInfo(
@@ -8,7 +9,31 @@ data class InstallablePackageInfo(
     val packageInfo: PackageInfo
 ) {
 
-    open class UiItemDiff : DiffUtil.ItemCallback<InstallablePackageInfo>() {
+    companion object {
+        fun fromMap(list: Map<String, PackageInfo>): List<InstallablePackageInfo> {
+            val result = mutableListOf<InstallablePackageInfo>()
+            val value = list.values
+            for (item in value) {
+                result.add(InstallablePackageInfo(item.id, item))
+            }
+            return result
+        }
+
+        fun updatableFromMap(list: Map<String, PackageInfo>): List<InstallablePackageInfo> {
+            val result = mutableListOf<InstallablePackageInfo>()
+            val value = list.values
+            for (item in value) {
+                if (item.installStatus is InstallStatus.Updatable) {
+                    result.add(InstallablePackageInfo(item.id, item))
+                }
+            }
+            return result
+        }
+
+    }
+
+    open class UiItemDiff(private val isDownloadUi: Boolean = false) :
+        DiffUtil.ItemCallback<InstallablePackageInfo>() {
 
         override fun areItemsTheSame(
             oldItem: InstallablePackageInfo,
@@ -19,7 +44,20 @@ data class InstallablePackageInfo(
             oldItem: InstallablePackageInfo,
             newItem: InstallablePackageInfo
         ): Boolean {
-            return oldItem == newItem
+
+            /*PackageInfo#sessionInfo and PackageInfo#TaskInfo doesn't effect UI
+                so it should be counted as content haven't changed*/
+
+            val isChanged = oldItem.name == newItem.name &&
+                    oldItem.packageInfo.selectedVariant == newItem.packageInfo.selectedVariant &&
+                    oldItem.packageInfo.installStatus == newItem.packageInfo.installStatus &&
+                    oldItem.packageInfo.id == newItem.packageInfo.id
+
+            if (isDownloadUi) {
+                return isChanged && oldItem.packageInfo.downloadStatus == newItem.packageInfo.downloadStatus
+            }
+
+            return isChanged
         }
     }
 
