@@ -1,6 +1,7 @@
 package org.grapheneos.apps.client.uiItem
 
 import androidx.recyclerview.widget.DiffUtil
+import org.grapheneos.apps.client.item.DownloadStatus
 import org.grapheneos.apps.client.item.InstallStatus
 import org.grapheneos.apps.client.item.PackageInfo
 
@@ -23,7 +24,9 @@ data class InstallablePackageInfo(
             val result = mutableListOf<InstallablePackageInfo>()
             val value = list.values
             for (item in value) {
-                if (item.installStatus is InstallStatus.Updatable) {
+                if (item.installStatus is InstallStatus.Updatable
+                    && item.downloadStatus !is DownloadStatus.Downloading
+                ) {
                     result.add(InstallablePackageInfo(item.id, item))
                 }
             }
