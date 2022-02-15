@@ -5,8 +5,7 @@ class AppSourceHelper {
     companion object {
         private const val gos = "GrapheneOS"
         private const val google = "Google (mirror)"
-        private const val mirror = "mirror"
-        private const val buildByGos = "ReBuild"
+        private const val buildByGos = "Third party apps"
 
 
         /*package name, category name, */
@@ -21,7 +20,7 @@ class AppSourceHelper {
 
         }
 
-        fun getCategoryName(pkgName: String) = listOfKnownApps.getOrDefault(pkgName, gos)
+        fun getCategoryName(pkgName: String) = listOfKnownApps.getOrDefault(pkgName, buildByGos)
     }
 
 }
