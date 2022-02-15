@@ -21,5 +21,4 @@ fun View.showSnackbar(msg: String, isError: Boolean? = null) {
     snackbar.show()
 }
 
-fun Fragment.showSnackbar(msg: String, isError: Boolean? = null) =
-    requireView().showSnackbar(msg, isError)
+fun Fragment.showSnackbar(msg: String, isError: Boolean? = null) = view?.showSnackbar(msg, isError)
