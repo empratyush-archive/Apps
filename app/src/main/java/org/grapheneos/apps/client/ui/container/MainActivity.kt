@@ -97,14 +97,24 @@ class MainActivity : AppCompatActivity() {
         NavigationUI.setupWithNavController(views.bottomNavView, navCtrl)
         setupActionBarWithNavController(navCtrl, appBarConfiguration)
 
+        views.searchBar.isVisible = false
+        views.searchTitle.isVisible = false
+        views.searchInput.isVisible = false
+
         navCtrl.addOnDestinationChangedListener { _, destination, _ ->
             views.bottomNavView.isGone =
                 !appBarConfiguration.topLevelDestinations.contains(destination.id)
             val isMainScreen = destination.id == R.id.mainScreen
             val isSearchScreen = destination.id == R.id.searchScreen
-            views.searchBar.isVisible = isMainScreen || isSearchScreen
-            views.searchTitle.isVisible = isMainScreen
-            views.searchInput.isVisible = isSearchScreen
+            val appsViewModel = applicationContext as App
+            appsViewModel.isMetadataSyncing().observe(this@MainActivity) { newValue ->
+                val isSyncingSuccess = !appsViewModel.packageLiveData.getValue().isNullOrEmpty()
+                val isSyncingDone = !newValue
+                views.searchBar.isVisible = (isSyncingDone && isSyncingSuccess)
+                            && (isMainScreen || isSearchScreen)
+                views.searchTitle.isVisible = isSyncingDone && isSyncingSuccess && isMainScreen
+                views.searchInput.isVisible = isSyncingDone && isSyncingSuccess && isSearchScreen
+            }
             if (isSearchScreen) {
                 views.searchInput.showKeyboard()
             } else {

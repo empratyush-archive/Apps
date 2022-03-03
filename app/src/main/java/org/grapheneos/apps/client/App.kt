@@ -114,6 +114,7 @@ class App : Application() {
     private var isServiceRunning = false
     private var installationCreateRequestInProgress = false
     private val isDownloadRunning = MutableLiveData<Boolean>()
+    private val isMetadataSyncing = MutableLiveData<Boolean>()
 
     /*Application info object*/
     private val sessionIdsMap = mutableMapOf<Int, String>()
@@ -206,6 +207,7 @@ class App : Application() {
             }
         }
 
+        isMetadataSyncing.postValue(false)
         isDownloadRunning.postValue(allTaskCompleted)
         updatableAppsCount.postValue(updatableCount)
 
@@ -320,6 +322,7 @@ class App : Application() {
 
         refreshJob = Job()
         CoroutineScope(scopeMetadataRefresh + refreshJob).launch(Dispatchers.IO) {
+            isMetadataSyncing.postValue(true)
             delay(500)
             callback.invoke(refreshMetadata())
             refreshJob.complete()
@@ -1043,5 +1046,6 @@ class App : Application() {
 
     fun isActivityRunning() = isActivityRunning != null
     fun isDownloadRunning(): LiveData<Boolean> = isDownloadRunning
+    fun isMetadataSyncing(): LiveData<Boolean> = isMetadataSyncing
 
 }
