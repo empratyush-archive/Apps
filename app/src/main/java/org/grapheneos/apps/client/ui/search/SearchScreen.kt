@@ -104,6 +104,8 @@ class SearchScreen : Fragment() {
         val query = searchState.getCurrentQuery()
         val filterList = allItems.applySearchQueryFilter(query)
 
+        binding.output.isVisible = false
+        binding.appsRecyclerView.isVisible = true
         if (allItems.isEmpty()) {
             //sync isn't finished yet or something?
             searchScreenAdapter.submitList(emptyList())
@@ -116,8 +118,6 @@ class SearchScreen : Fragment() {
             binding.output.isVisible = true
             searchScreenAdapter.submitList(emptyList())
         } else {
-            binding.output.isVisible = false
-            binding.appsRecyclerView.isVisible = true
             searchScreenAdapter.submitList(filterList)
         }
 
