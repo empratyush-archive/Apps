@@ -572,7 +572,7 @@ class App : Application() {
         backgroundMode: Boolean = false
     ): Boolean {
         var installed = false
-        if (backgroundMode || (isActivityRunning != null && sessionIdsMap.isEmpty() && !installationCreateRequestInProgress)) {
+        if (isPrivilegeInstallPermissionGranted() || backgroundMode || ((isActivityRunning != null && sessionIdsMap.isEmpty() && !installationCreateRequestInProgress))) {
             installationCreateRequestInProgress = true
             installed = installApps(apks, pkgName)
             confirmationAwaitedPackages.remove(pkgName)
@@ -917,7 +917,7 @@ class App : Application() {
 
         registerActivityLifecycleCallbacks(ActivityLifeCycleHelper { activity ->
             isActivityRunning = activity
-            if (isActivityRunning != null) {
+            if (!isPrivilegeInstallPermissionGranted() && isActivityRunning != null) {
                 confirmationAwaitedPackages.forEach { (packageName, apks) ->
                     CoroutineScope(scopeApkDownload).launch {
                         requestInstall(apks, packageName)
