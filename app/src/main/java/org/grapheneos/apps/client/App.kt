@@ -738,11 +738,7 @@ class App : Application() {
                 is InstallStatus.Updated -> {
                     openApp(pkgName, callback)
                 }
-                is InstallStatus.Updatable -> {
-                    downloadAndInstallPackages(variant)
-                    { error -> callback.invoke(error.toUiMsg()) }
-                }
-                is InstallStatus.ReinstallRequired -> {
+                is InstallStatus.Updatable, is InstallStatus.ReinstallRequired -> {
                     downloadAndInstallPackages(variant)
                     { error -> callback.invoke(error.toUiMsg()) }
                 }
