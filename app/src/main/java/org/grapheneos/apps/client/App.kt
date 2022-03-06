@@ -311,10 +311,7 @@ class App : Application() {
 
     @RequiresPermission(Manifest.permission.INTERNET)
     fun refreshMetadata(force: Boolean = false, callback: (error: MetadataCallBack) -> Unit) {
-        if ((packagesInfo.isNotEmpty() && !force) ||
-            (this::refreshJob.isInitialized && refreshJob.isActive
-                    && !refreshJob.isCompleted && !refreshJob.isCancelled)
-        ) {
+        if ((packagesInfo.isNotEmpty() && !force) || isMetadataSyncing()) {
             return
         }
 
@@ -827,11 +824,7 @@ class App : Application() {
             packagesInfo.clear()
         }
 
-        if (this::refreshJob.isInitialized && refreshJob.isActive
-            && !refreshJob.isCompleted && !refreshJob.isCancelled
-        ) {
-            refreshJob.cancel()
-        }
+        if (isMetadataSyncing()) return
 
         refreshJob = Job()
         val privilegeMode = isPrivilegeInstallPermissionGranted()
@@ -892,6 +885,10 @@ class App : Application() {
             seamlessUpdaterJob.complete()
         }
     }
+
+    private fun isMetadataSyncing(): Boolean = this::refreshJob.isInitialized && refreshJob.isActive
+            && !refreshJob.isCompleted && !refreshJob.isCancelled
+
 
     private fun cancelScheduleAutoUpdate() {
         val jobScheduler = getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
@@ -1046,5 +1043,6 @@ class App : Application() {
 
     fun isActivityRunning() = isActivityRunning != null
     fun isDownloadRunning(): LiveData<Boolean> = isDownloadRunning
+    fun isSyncingSuccessful() = !isMetadataSyncing() && packagesInfo.isNotEmpty()
 
 }
