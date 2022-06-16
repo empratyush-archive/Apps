@@ -79,6 +79,8 @@ class App : Application() {
 
     companion object {
         const val JOB_ID_SEAMLESS_UPDATER = 1000
+        const val JOB_ID_SEAMLESS_NON_IDLE_UPDATER = 1001
+
 
         const val INSTALLATION_FAILED_CHANNEL = "installationFailed"
         const val BACKGROUND_SERVICE_CHANNEL = "backgroundTask"

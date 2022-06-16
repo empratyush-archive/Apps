@@ -7,7 +7,6 @@ import android.app.job.JobParameters
 import android.app.job.JobService
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import org.grapheneos.apps.client.App
 import org.grapheneos.apps.client.R
 import org.grapheneos.apps.client.ui.container.MainActivity
@@ -18,8 +17,6 @@ class SeamlessUpdaterJob : JobService() {
         const val REQUEST_CODE = 100
         const val NOTIFICATION_ID = 10001
         const val NOTIFICATION_ACTION = "OpenViaNotification"
-
-        const val TAG = "SeamlessUpdaterJob"
     }
 
     private fun List<String>.valuesAsString(): String {
@@ -29,18 +26,16 @@ class SeamlessUpdaterJob : JobService() {
             result += if (i != (size - 1) && isMultiple) {
                 "${get(i)}, "
             } else {
-                "${get(i)}"
+                get(i)
             }
         }
         return result
     }
 
     override fun onStartJob(params: JobParameters?): Boolean {
-        Log.d(TAG, "onStartJob")
 
         val app = (this as Context).applicationContext as App
         if (app.isActivityRunning()) {
-            Log.d(TAG, "activity is running, skipping the job")
             return false
         }
 
@@ -100,14 +95,17 @@ class SeamlessUpdaterJob : JobService() {
             val notificationManager = getSystemService(NotificationManager::class.java)
             notificationManager.notify(NOTIFICATION_ID, notification.build())
 
-            jobFinished(params, false)
-            Log.d(TAG, "job finished")
+            params.jobFinished()
         }
         return true
     }
 
+    private fun JobParameters?.jobFinished() {
+        jobFinished(this, false)
+        App.jobPsfsMgr.jobFinished()
+    }
+
     override fun onStopJob(params: JobParameters?): Boolean {
-        Log.d(TAG, "onStopJob, reason ${params?.stopReason}")
         return true
     }
 }

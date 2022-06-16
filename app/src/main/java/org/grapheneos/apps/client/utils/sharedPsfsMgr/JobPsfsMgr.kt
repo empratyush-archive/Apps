@@ -6,10 +6,10 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
-import android.util.Log
 import org.grapheneos.apps.client.App
 import org.grapheneos.apps.client.R
 import org.grapheneos.apps.client.service.SeamlessUpdaterJob
+import kotlin.math.min
 
 class JobPsfsMgr(val context: Context) {
 
@@ -20,8 +20,6 @@ class JobPsfsMgr(val context: Context) {
 
         val NETWORK_TYPE_KEY = App.getString(R.string.networkType)
         val RESCHEDULE_TIME_KEY = App.getString(R.string.rescheduleTiming)
-
-        val TAG = "JobPsfsMgr"
     }
 
     private val jobScheduler = context.getSystemService(JobScheduler::class.java)
@@ -59,19 +57,19 @@ class JobPsfsMgr(val context: Context) {
         sharedPrefs.registerOnSharedPreferenceChangeListener(sharedPrefsChangeListener)
     }
 
-    val sharedPrefsChangeListener = SharedPreferences.OnSharedPreferenceChangeListener  { _, key ->
-        if (key == BACKGROUND_UPDATE_KEY || key == NETWORK_TYPE_KEY || key == RESCHEDULE_TIME_KEY) {
-            updateJob()
+    private val sharedPrefsChangeListener =
+        SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+            if (key == BACKGROUND_UPDATE_KEY || key == NETWORK_TYPE_KEY || key == RESCHEDULE_TIME_KEY) {
+                updateJob()
+            }
         }
-    }
 
-    fun updateJob() {
+    private fun updateJob() {
         val pendingJob = jobScheduler.getPendingJob(App.JOB_ID_SEAMLESS_UPDATER)
 
         if (!backgroundUpdateEnabled()) {
             if (pendingJob != null) {
                 jobScheduler.cancel(App.JOB_ID_SEAMLESS_UPDATER)
-                Log.d(TAG, "job cancelled")
             }
             return
         }
@@ -85,16 +83,31 @@ class JobPsfsMgr(val context: Context) {
             return
         }
 
-        val jobInfo = JobInfo.Builder(
-            App.JOB_ID_SEAMLESS_UPDATER,
-            ComponentName(context, SeamlessUpdaterJob::class.java)
-        ).setRequiredNetworkType(jobNetworkType())
+        val jobInfo = basicJobInfo(App.JOB_ID_SEAMLESS_UPDATER)
+            .setRequiresDeviceIdle(true)
+            .build()
+        jobScheduler.schedule(jobInfo)
+    }
+
+    private fun basicJobInfo(id: Int) =
+        JobInfo.Builder(id, ComponentName(context, SeamlessUpdaterJob::class.java))
+            .setRequiredNetworkType(jobNetworkType())
             .setPersisted(true)
             .setPeriodic(jobRepeatIntervalMillis())
-            .build()
 
-        jobScheduler.schedule(jobInfo)
-        Log.d(TAG, "job scheduled, interval: ${jobInfo.intervalMillis}")
+    fun jobFinished() {
+        rescheduledNonIdleJon()
+    }
+
+    private fun rescheduledNonIdleJon() {
+        val duration = min(jobRepeatIntervalMillis() * 2, 24 * 60 * 60 * 1000)
+        val id = App.JOB_ID_SEAMLESS_NON_IDLE_UPDATER
+        jobScheduler.cancel(id)
+        jobScheduler.schedule(
+            basicJobInfo(App.JOB_ID_SEAMLESS_NON_IDLE_UPDATER)
+                .setPeriodic(duration)
+                .build()
+        )
     }
 
     fun autoInstallEnabled() = sharedPrefs.getBoolean(
