@@ -4,6 +4,7 @@ import android.app.NotificationManager
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -133,6 +134,14 @@ class MainActivity : AppCompatActivity() {
 
         views.searchInput.addTextChangedListener { editable ->
             searchState.updateQuery(editable?.trim()?.toString() ?: "")
+        }
+        views.searchInput.setOnEditorActionListener { view, action, _ ->
+            if (action == EditorInfo.IME_ACTION_SEARCH) {
+                view.clearFocus()
+                view.hideKeyboard()
+                return@setOnEditorActionListener true
+            }
+            false
         }
     }
 
